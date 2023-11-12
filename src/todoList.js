@@ -1,3 +1,4 @@
+
 function createCategory(name) {
     let todos = [];
 
@@ -13,11 +14,16 @@ function createCategory(name) {
         todos = todos.filter(todo => todo.id !== id);
     }
 
+    function editTodo(id, newTodo) {
+        const todoIndex = todos.findIndex(todo => todo.id === id)
+        todos[todoIndex] = newTodo;
+    }
+
     function getTodos () {
         return todos;
     }
 
-    return {getName, addTodo, removeTodo, getTodos}
+    return {getName, addTodo, removeTodo, editTodo, getTodos}
 }
 
 export const todo = (function() {
@@ -32,29 +38,23 @@ export const todo = (function() {
     ];
 
     function addTodo(category, todo) {
-        todos[category].addTodo(todo);
+        category.addTodo(todo);
     }
 
     function removeTodo(category, id) {
-        todos[category] = todos.category.filter(todo => todo.id !== id);
+        category.removeTodo(id);
     }   
 
-    function editTodo(category, id, todo) {
-        const todoIndex = todos[category].findIndex(todo => todo.id === id)
-        todos[category][todoIndex] = todo;
+    function editTodo(category, id, newTodo) {
+
+        category.editTodo(id, todo);
     }
 
     function getCategoryByName(name) {
         return todos.find(category => category.getName() === name)
     }
 
-    function getCategoryTodos(categoryName) {
-        const category = getCategoryByName(categoryName);
-        console.log()
-        return category.getTodos()
-    }
-
-    return { addTodo, removeTodo, editTodo, getCategoryTodos}
+    return { addTodo, removeTodo, editTodo, getCategoryByName}
 })()
 
 export const todoController = (function() {
@@ -62,17 +62,14 @@ export const todoController = (function() {
     let currentCategory;
     switchCategory('today');
 
-    function addTodo(todo) {
+    function addTodo(newTodo) {
         todo.addTodo(currentCategory, todo);
     }
 
-    function switchCategory(newCategory) {
-        currentCategory = newCategory;
+    function switchCategory(categoryName) {
+        currentCategory = todo.getCategoryByName(categoryName);
         displayCategory(currentCategory);
     }
-
-    switchCategory('week')
-
     return {addTodo, switchCategory}
 })()
 
