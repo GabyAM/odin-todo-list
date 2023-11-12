@@ -13,18 +13,23 @@ function createCategory(name) {
         todos = todos.filter(todo => todo.id !== id);
     }
 
-    return {getName, addTodo, removeTodo}
+    function getTodos () {
+        return todos;
+    }
+
+    return {getName, addTodo, removeTodo, getTodos}
 }
 
-const todo = (function() {
+export const todo = (function() {
+    const todayCategory = createCategory('today');
+    const weekCategory = createCategory('week');
     const importantCategory = createCategory('important');
-    const upcomingCategory = createCategory('upcoming');
 
-    let todos = {
-        allCategory,
-        importantCategory,
-        upcomingCategory
-    };
+    let todos = [
+        todayCategory,
+        weekCategory,
+        importantCategory
+    ];
 
     function addTodo(category, todo) {
         todos[category].addTodo(todo);
@@ -39,5 +44,35 @@ const todo = (function() {
         todos[category][todoIndex] = todo;
     }
 
+    function getCategoryByName(name) {
+        return todos.find(category => category.getName() === name)
+    }
+
+    function getCategoryTodos(categoryName) {
+        const category = getCategoryByName(categoryName);
+        console.log()
+        return category.getTodos()
+    }
+
+    return { addTodo, removeTodo, editTodo, getCategoryTodos}
+})()
+
+export const todoController = (function() {
+    
+    let currentCategory;
+    switchCategory('today');
+
+    function addTodo(todo) {
+        todo.addTodo(currentCategory, todo);
+    }
+
+    function switchCategory(newCategory) {
+        currentCategory = newCategory;
+        displayCategory(currentCategory);
+    }
+
+    switchCategory('week')
+
+    return {addTodo, switchCategory}
 })()
 
