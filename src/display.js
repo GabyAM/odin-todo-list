@@ -1,3 +1,4 @@
+import { todoController } from "./todoList.js";
 
 function createTodo(todo = '') {
     const $listItem = document.createElement('li');
@@ -16,4 +17,17 @@ function displayCategory(category) {
         $list.appendChild($listTodo)
     })
 }
+function changeCategoryScreen(categoryName) {
+    document.querySelector('.todo-list').innerHTML = '';
+    todoController.switchCategory(categoryName);
+}
+
+const $categoryButtons = document.querySelectorAll('aside ul button');
+$categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        console.log('kaching!')
+        changeCategoryScreen(button.dataset.category);
+    })
+})
+
 export {displayCategory};
