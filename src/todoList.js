@@ -1,3 +1,4 @@
+import { displayCategory } from "./display.js";
 
 function createCategory(name) {
     let todos = [];
@@ -20,7 +21,7 @@ function createCategory(name) {
     }
 
     function getTodos () {
-        return todos;
+        return [...todos];
     }
 
     return {getName, addTodo, removeTodo, editTodo, getTodos}
@@ -47,14 +48,25 @@ export const todo = (function() {
 
     function editTodo(category, id, newTodo) {
 
-        category.editTodo(id, todo);
+        category.editTodo(id, newTodo);
     }
 
     function getCategoryByName(name) {
         return todos.find(category => category.getName() === name)
     }
 
-    return { addTodo, removeTodo, editTodo, getCategoryByName}
+    function addCategory(name) {
+        const newCategory = createCategory(name);
+        todos.push(newCategory);
+    }
+
+    return { 
+        addTodo,
+        removeTodo, 
+        editTodo, 
+        getCategoryByName, 
+        addCategory
+    }
 })()
 
 export const todoController = (function() {
@@ -63,13 +75,18 @@ export const todoController = (function() {
     switchCategory('today');
 
     function addTodo(newTodo) {
-        todo.addTodo(currentCategory, todo);
+        todo.addTodo(currentCategory, newTodo);
+        displayCategory(currentCategory);
     }
 
     function switchCategory(categoryName) {
         currentCategory = todo.getCategoryByName(categoryName);
         displayCategory(currentCategory);
     }
+
+    addTodo('todo 1');
+    addTodo('todo 2');
+
     return {addTodo, switchCategory}
 })()
 
