@@ -1,3 +1,4 @@
+import { Todo } from "./todo.js";
 
 function createCategory(name) {
     let todos = [];
@@ -78,7 +79,7 @@ export const todoController = (function() {
     }
 
     function editTodo(todo) { //Placeholder! will use the ID here
-
+        
     }
 
     function switchCategory(categoryName) {
@@ -89,8 +90,8 @@ export const todoController = (function() {
         return currentCategory.getTodos();
     }
 
-    addTodo('todo 1');
-    addTodo('todo 2');
+    addTodo(new Todo('todo 1', '', false, '', ''));
+    addTodo(new Todo('todo 2', '', true, '', ''));
 
     return {addTodo, editTodo, switchCategory, getTodos}
 })()
