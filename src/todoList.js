@@ -24,7 +24,11 @@ function createCategory(name) {
         return [...todos];
     }
 
-    return {getName, addTodo, removeTodo, editTodo, getTodos}
+    function getTodoById(id) {
+        return todos.find(todo => todo.id === id);
+    }
+
+    return {getName, addTodo, removeTodo, editTodo, getTodos, getTodoById}
 }
 
 export const todo = (function() {
@@ -78,7 +82,7 @@ export const todoController = (function() {
         todo.addTodo(currentCategory, newTodo);
     }
 
-    function editTodo(todo) { //Placeholder! will use the ID here
+    function editTodo(id, newTodo) {
         
     }
 
@@ -90,9 +94,13 @@ export const todoController = (function() {
         return currentCategory.getTodos();
     }
 
+    function getTodoById(id) {
+        return currentCategory.getTodoById(id);
+    }
+
     addTodo(new Todo('todo 1', '', false, '', ''));
     addTodo(new Todo('todo 2', '', true, '', ''));
 
-    return {addTodo, editTodo, switchCategory, getTodos}
+    return {addTodo, editTodo, switchCategory, getTodos, getTodoById}
 })()
 

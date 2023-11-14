@@ -1,39 +1,22 @@
 import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
+import { todoInterface } from "./todoInterface.js";
 
 export const displayModule = (function() {
 
     function addEvents(todoTitle) {
 
         let enterPressed = false;
-
-        function editTodo(todo) {
-            todoController.editTodo(todo)
-        }
-
-        function validateAndAddTodo(todo, todoTitle) {
-            if(todo.classList.contains('placeholder')) {
-                todo.classList.remove('placeholder');
-                document.querySelector('.todo-list').removeChild(todo);
-                if(todoTitle.value !== '') {
-                    const newTodo = new Todo(todoTitle.value, '', false, '', '');
-                    todoController.addTodo(newTodo);
-                }
-            }
-            else {
-                editTodo(todo);
-            }
-            enterPressed = false;
-        }
     
         function onBlur() {
             if(enterPressed) {
                 enterPressed = false;
             }
             else {
-                validateAndAddTodo(todoTitle.parentElement, todoTitle)
+                todoInterface.handleTodoSubmit(todoTitle.parentElement);
+                enterPressed = false;
                 updateTodos();
-                toggleAddTodoButton();
+                toggleAddTodoButton('enabled');
             }
         }
 
@@ -41,9 +24,10 @@ export const displayModule = (function() {
             if(event.key === 'Enter' && !enterPressed) {
                 enterPressed = true;
                 event.preventDefault();
-                validateAndAddTodo(todoTitle.parentElement, todoTitle)
+                todoInterface.handleTodoSubmit(todoTitle.parentElement);
+                enterPressed = false;
                 updateTodos()
-                toggleAddTodoButton();
+                toggleAddTodoButton('enabled');
                 event.preventDefault();
             }
         }
@@ -76,6 +60,9 @@ export const displayModule = (function() {
         const $list = document.querySelector('.todo-list');
         todos.forEach(todo => {
             const $listTodo = createTodo(todo.title);
+            if(todo.id) {
+                $listTodo.dataset.id = todo.id;
+            }
             $list.appendChild($listTodo)
             addEvents($listTodo.children[0]); //this will have to be modified if i put other element before the text input (possibly checkbox)
         })
@@ -86,13 +73,13 @@ export const displayModule = (function() {
         displayTodos(todoController.getTodos());
     }
 
-    function toggleAddTodoButton() {
+    function toggleAddTodoButton(type) {
         const $addTodoButton = document.querySelector('.add-todo-button');
-        $addTodoButton.disabled = $addTodoButton.disabled ? false : true;
+        $addTodoButton.disabled = type === 'disabled' ? true : false;
     }
 
     function displayTodoPlaceholder() {
-        toggleAddTodoButton();
+        toggleAddTodoButton('disabled');
 
         const $todoList = document.querySelector('.todo-list');
         const $todo = createTodo();
