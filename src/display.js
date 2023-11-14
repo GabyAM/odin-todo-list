@@ -1,3 +1,4 @@
+import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
 
 export const displayModule = (function() {
@@ -15,7 +16,7 @@ export const displayModule = (function() {
                 todo.classList.remove('placeholder');
                 document.querySelector('.todo-list').removeChild(todo);
                 if(todoTitle.value !== '') {
-                    const newTodo = todoTitle.value;
+                    const newTodo = new Todo(todoTitle.value, '', false, '', '');
                     todoController.addTodo(newTodo);
                 }
             }
@@ -63,18 +64,18 @@ export const displayModule = (function() {
 
     function createTodo(todo = '') {
         const $listItem = document.createElement('li');
-        const $todoText = document.createElement('input');
-        $todoText.type = 'text';
-        $todoText.value = todo;
-        $todoText.className = 'todo-text';
-        $listItem.appendChild($todoText);
+        const $todoTitle = document.createElement('input');
+        $todoTitle.type = 'text';
+        $todoTitle.value = todo;
+        $todoTitle.className = 'todo-text';
+        $listItem.appendChild($todoTitle);
         return $listItem
     }
 
     function displayTodos(todos) {
         const $list = document.querySelector('.todo-list');
         todos.forEach(todo => {
-            const $listTodo = createTodo(todo);
+            const $listTodo = createTodo(todo.title);
             $list.appendChild($listTodo)
             addEvents($listTodo.children[0]); //this will have to be modified if i put other element before the text input (possibly checkbox)
         })
@@ -99,10 +100,10 @@ export const displayModule = (function() {
 
         $todoList.appendChild($todo);
 
-        const $todoText = document.querySelector('.placeholder .todo-text')
-        addEvents($todoText);
+        const $todoTitle = document.querySelector('.placeholder .todo-text')
+        addEvents($todoTitle);
 
-        $todoText.focus();
+        $todoTitle.focus();
     }
 
     function changeCategory(categoryName) {
