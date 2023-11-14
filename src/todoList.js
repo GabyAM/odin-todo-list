@@ -1,4 +1,3 @@
-import { displayCategory } from "./display.js";
 
 function createCategory(name) {
     let todos = [];
@@ -76,17 +75,23 @@ export const todoController = (function() {
 
     function addTodo(newTodo) {
         todo.addTodo(currentCategory, newTodo);
-        displayCategory(currentCategory);
+    }
+
+    function editTodo(todo) { //Placeholder! will use the ID here
+
     }
 
     function switchCategory(categoryName) {
         currentCategory = todo.getCategoryByName(categoryName);
-        displayCategory(currentCategory);
+    }
+
+    function getTodos() {
+        return currentCategory.getTodos();
     }
 
     addTodo('todo 1');
     addTodo('todo 2');
 
-    return {addTodo, switchCategory}
+    return {addTodo, editTodo, switchCategory, getTodos}
 })()
 
