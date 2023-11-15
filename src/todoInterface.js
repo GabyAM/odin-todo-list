@@ -1,3 +1,4 @@
+//import { displayModule } from "./display.js";
 import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
 
@@ -9,27 +10,28 @@ export const todoInterface = (function () {
         function addNewTodo() {
             const newTodo = new Todo(todoTitle.value, '', false, '', '');
             todoController.addTodo(newTodo);
-            domTodo.dataset.id = newTodo.id;
         }
     
-        function editExistingTodo() {
+        function updateTodoTitle() {
             const id = domTodo.dataset.id;
     
             const todoToEdit = todoController.getTodoById(id);
-            todoToEdit.title = todoTitle.value;
-        }
-
-        if(domTodo.classList.contains('placeholder')) {
-            domTodo.classList.remove('placeholder');
-            document.querySelector('.todo-list').removeChild(domTodo);
-            if(todoTitle.value !== '') {
-                addNewTodo();
+            if(todoToEdit) {
+                todoToEdit.title = todoTitle.value;
+            } else {
+                throw new Error("can't find the todo by id on the list")
             }
         }
+
+        if(domTodo.dataset.id) {
+            updateTodoTitle();
+        }
         else {
-            editExistingTodo();
+            domTodo.classList.remove('placeholder');
+            if(todoTitle.value !== '') {
+                addNewTodo();
+            } else document.querySelector('.todo-list').removeChild(domTodo);
         }
     }
-
-    return { handleTodoSubmit}
+    return { handleTodoSubmit }
 })()

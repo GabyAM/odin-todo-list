@@ -1,10 +1,15 @@
-import { Todo } from "./todo.js";
+//import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
 import { todoInterface } from "./todoInterface.js";
 
 export const displayModule = (function() {
 
-    function addEvents(todoTitle) {
+    function addEvents(todo) {
+
+        const todoTitle = todo.children[0];
+        todoTitle.removeEventListener('blur', onBlurHandler)
+        todoTitle.removeEventListener('keydown', onKeyDownHandler)
+
 
         let enterPressed = false;
     
@@ -13,7 +18,7 @@ export const displayModule = (function() {
                 enterPressed = false;
             }
             else {
-                todoInterface.handleTodoSubmit(todoTitle.parentElement);
+                todoInterface.handleTodoSubmit(todo);
                 enterPressed = false;
                 updateTodos();
                 toggleAddTodoButton('enabled');
@@ -24,11 +29,10 @@ export const displayModule = (function() {
             if(event.key === 'Enter' && !enterPressed) {
                 enterPressed = true;
                 event.preventDefault();
-                todoInterface.handleTodoSubmit(todoTitle.parentElement);
-                enterPressed = false;
+                todoInterface.handleTodoSubmit(todo);
                 updateTodos()
+                enterPressed = false;
                 toggleAddTodoButton('enabled');
-                event.preventDefault();
             }
         }
 
@@ -39,38 +43,54 @@ export const displayModule = (function() {
             onKeyDown(e);
         }
 
-        todoTitle.removeEventListener('blur', onBlurHandler)
-        todoTitle.removeEventListener('keydown', onKeyDownHandler)
-
-        todoTitle.addEventListener('blur', onBlurHandler)
-        todoTitle.addEventListener('keydown', onKeyDownHandler)
+        if (!todoTitle.hasAttribute('data-event-bound')) {
+            todoTitle.addEventListener('blur', onBlurHandler);
+            todoTitle.addEventListener('keydown', onKeyDownHandler);
+            todoTitle.setAttribute('data-event-bound', true);
+        }
     }
 
-    function createTodo(todo = '') {
+    function createTodo({title = '', completed = false, id = null} = {}) {
         const $listItem = document.createElement('li');
+        if(id) {
+            $listItem.dataset.id = id;
+        }
+
         const $todoTitle = document.createElement('input');
         $todoTitle.type = 'text';
-        $todoTitle.value = todo;
-        $todoTitle.className = 'todo-text';
+        $todoTitle.value = title;
+        $todoTitle.className = 'todo-title';
+
+        const $todoCompleted = document.createElement('input');
+        $todoCompleted.type = 'checkbox';
+        $todoCompleted.checked = completed;
+        $todoCompleted.className = 'todo-completed'
+
         $listItem.appendChild($todoTitle);
+        $listItem.appendChild($todoCompleted);
+
+        addEvents($listItem);
         return $listItem
     }
 
     function displayTodos(todos) {
         const $list = document.querySelector('.todo-list');
         todos.forEach(todo => {
-            const $listTodo = createTodo(todo.title);
-            if(todo.id) {
-                $listTodo.dataset.id = todo.id;
-            }
+            const $listTodo = createTodo(todo);
             $list.appendChild($listTodo)
-            addEvents($listTodo.children[0]); //this will have to be modified if i put other element before the text input (possibly checkbox)
         })
     }
 
+    let updatingTodos = false;
+
     function updateTodos() {
-        document.querySelector('.todo-list').innerHTML = '';
-        displayTodos(todoController.getTodos());
+
+        if(!updatingTodos) {
+            updatingTodos = true;
+            document.querySelector('.todo-list').innerHTML = '';
+            displayTodos(todoController.getTodos());
+            updatingTodos = false;
+        }
     }
 
     function toggleAddTodoButton(type) {
@@ -87,8 +107,8 @@ export const displayModule = (function() {
 
         $todoList.appendChild($todo);
 
-        const $todoTitle = document.querySelector('.placeholder .todo-text')
-        addEvents($todoTitle);
+        const $todoTitle = document.querySelector('.placeholder .todo-title')
+        addEvents($todo);
 
         $todoTitle.focus();
     }
