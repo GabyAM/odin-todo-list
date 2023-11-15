@@ -33,5 +33,11 @@ export const todoInterface = (function () {
             } else document.querySelector('.todo-list').removeChild(domTodo);
         }
     }
-    return { handleTodoSubmit }
+
+    function handleCompletedChange(id) {
+        const todoInList = todoController.getTodoById(id);
+        todoInList.toggleCompleted();
+    }
+
+    return { handleTodoSubmit, handleCompletedChange }
 })()

@@ -7,8 +7,11 @@ export const displayModule = (function() {
     function addEvents(todo) {
 
         const todoTitle = todo.children[0];
+        const todoCompleted = todo.children[1];
+
         todoTitle.removeEventListener('blur', onBlurHandler)
         todoTitle.removeEventListener('keydown', onKeyDownHandler)
+        todoCompleted.removeEventListener('change', onChangeHandler);
 
 
         let enterPressed = false;
@@ -36,6 +39,11 @@ export const displayModule = (function() {
             }
         }
 
+        function onChange() {
+            todoInterface.handleCompletedChange(todo.dataset.id);
+            //i dont need to update the list here!
+        }
+
         function onBlurHandler() {
             onBlur();
         }
@@ -43,11 +51,17 @@ export const displayModule = (function() {
             onKeyDown(e);
         }
 
+        function onChangeHandler() {
+            onChange();
+        }
+
         if (!todoTitle.hasAttribute('data-event-bound')) {
             todoTitle.addEventListener('blur', onBlurHandler);
             todoTitle.addEventListener('keydown', onKeyDownHandler);
             todoTitle.setAttribute('data-event-bound', true);
         }
+
+        todoCompleted.addEventListener('change', onChangeHandler);
     }
 
     function createTodo({title = '', completed = false, id = null} = {}) {

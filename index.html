@@ -3,18 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link type="stylesheet" href="./main.css">
+    <title>Todo</title>
+    <link rel="stylesheet" href="./main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
     <aside>
-
+        <ul>
+            <button data-category="today">
+                <li>
+                    <span class="material-symbols-outlined">
+                        category
+                    </span>
+                    <h3>All</h3>
+                </li>
+            </button>
+            <button data-category="week">
+                <li>
+                    <span class="material-symbols-outlined">
+                        star
+                    </span>
+                    <h3>Important</h3>
+                </li>
+            </button>
+            <button data-category="important">
+                <li>
+                    <span class="material-symbols-outlined">
+                        event
+                    </span>
+                    <h3>Upcoming</h3>
+                </li>
+            </button>
+        </ul>
+        <hr>
+        <button class="add-category-button">
+            <span class="material-symbols-outlined">
+                library_add
+            </span>
+            <h3> Add Category</h3>
+        </button>
     </aside>
+    <div class="vertical-divider"></div>
     <main>
         <ul class="todo-list">
 
         </ul>
+        <!--<form>
+            <input type="text" name="title">
+            <input type="date" name="date">
+            <button type="submit" class="add-todo-button">Add</button>
+        </form>
+        <select>
+            <option>all</option>
+            <option>completed</option>
+            <option>important</option>
+        </select>-->
+        <button class="add-todo-button">
+            <span class="material-symbols-outlined">
+                playlist_add
+            </span>
+            <h3>Add todo</h3>
+        </button>
     </main>
 </body>
-<script src="src/index.js"></script>
+<script type="module" src="src/index.js"></script>
 </html>
