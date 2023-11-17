@@ -3,10 +3,17 @@
     --secondary-color: #F7F1B6;
     --accent-color: #CA1625;
     --background-color: #E3F2FC;
+    --background-color-dark: #d7e6f0;
     --text-color: #02090E;
+    --alternative-text-color: #e3f4fe;
 }
 
 * {
     margin: 0;
     padding: 0;
+.todo-edit {
+    position: fixed;
+    width: 0;
+    height: 100%;
+    right: 0;
 }
