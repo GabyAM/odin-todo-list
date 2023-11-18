@@ -4,6 +4,7 @@ import {compareAsc, parseISO} from 'https://cdn.jsdelivr.net/npm/date-fns@2.30.0
 //import { displayModule } from "./display.js";
 import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
+import { isDateUpcoming } from './utilities.js';
 
 export const todoInterface = (function () {
 
@@ -41,8 +42,8 @@ export const todoInterface = (function () {
     }
 
     function handleDateChange(id, newDueDate) {
-        const todoInList = todoController.getTodoById(id);
-        todoInList.dueDate = newDueDate
+
+        todoController.updateTodoDate(id, newDueDate, isDateUpcoming(newDueDate));
     }
 
     function sortListByDueDate(todoList) {

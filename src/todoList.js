@@ -32,13 +32,13 @@ function createCategory(name) {
 }
 
 export const todo = (function() {
-    const todayCategory = createCategory('today');
-    const weekCategory = createCategory('week');
+    const allCategory = createCategory('all');
+    const upcomingCategory = createCategory('upcoming');
     const importantCategory = createCategory('important');
 
     let todos = [
-        todayCategory,
-        weekCategory,
+        allCategory,
+        upcomingCategory,
         importantCategory
     ];
 
@@ -76,14 +76,21 @@ export const todo = (function() {
 export const todoController = (function() {
     
     let currentCategory;
-    switchCategory('today');
+    switchCategory('all');
 
     function addTodo(newTodo) {
         todo.addTodo(currentCategory, newTodo);
+        if(currentCategory.getName() !== 'all') {
+            todo.addTodo(todo.getCategoryByName('all'), newTodo)
+        }
     }
 
-    function editTodo(id, newTodo) {
-        
+    function updateTodoDate(id, newDate, isUpcoming) {
+        const listTodo = currentCategory.getTodoById(id);
+        listTodo.dueDate = newDate;
+        if(isUpcoming) {
+            todo.addTodo(todo.getCategoryByName('upcoming'), listTodo)
+        }
     }
 
     function switchCategory(categoryName) {
@@ -106,12 +113,12 @@ export const todoController = (function() {
     addTodo(new Todo('todo 2', '', true, '', ''));
 
     return {
-        addTodo, 
-        editTodo, 
+        addTodo,  
         switchCategory, 
         getTodos, 
         getTodoById,
-        addCategory
+        addCategory,
+        updateTodoDate
     }
 })()
 

@@ -163,7 +163,7 @@ export const displayModule = (function() {
         $todoList.appendChild($todo);
 
         const $todoTitle = document.querySelector('.placeholder .todo-title')
-        addEvents($todo);
+        addTextInputEvents($todoTitle);
 
         $todoTitle.focus();
     }
