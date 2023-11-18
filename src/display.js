@@ -4,61 +4,46 @@ import { todoInterface } from "./todoInterface.js";
 
 export const displayModule = (function() {
 
-    function addEvents(todo) {
-
-        const todoTitle = todo.children[1];
-        const todoCompleted = todo.children[0];
-
-        todoTitle.removeEventListener('blur', onBlurHandler)
-        todoTitle.removeEventListener('keydown', onKeyDownHandler)
-        todoCompleted.removeEventListener('change', onChangeHandler);
-
-
+    function addTextInputEvents(input, callback) {
         let enterPressed = false;
-    
-        function onBlur() {
+        
+        function onBlurHandler() {
             if(enterPressed) {
+                enterPressed = false
+            } else {
+                callback(input);
                 enterPressed = false;
-            }
-            else {
-                todoInterface.handleTodoSubmit(todo);
-                enterPressed = false;
-                updateTodos();
-                toggleAddTodoButton('enabled');
             }
         }
 
-        function onKeyDown(event) {
-            if(event.key === 'Enter' && !enterPressed) {
+        function onKeyDownHandler(e) {
+            if(e.key === 'Enter' && !enterPressed) {
                 enterPressed = true;
-                event.preventDefault();
-                todoInterface.handleTodoSubmit(todo);
-                updateTodos()
-                enterPressed = false;
-                toggleAddTodoButton('enabled');
+                callback(input);
+                enterPressed = false;  
             }
         }
+
+        input.removeEventListener('blur', onBlurHandler);
+        input.removeEventListener('keydown', onKeyDownHandler);
+
+
+        if (!input.hasAttribute('data-event-bound')) {
+            input.addEventListener('blur', onBlurHandler);
+            input.addEventListener('keydown', onKeyDownHandler);
+            input.setAttribute('data-event-bound', true);
+        }
+    }
+
+    function addCheckboxEvents(todoCompleted) {
 
         function onChange() {
             todoInterface.handleCompletedChange(todo.dataset.id);
             //updateTodos();
         }
 
-        function onBlurHandler() {
-            onBlur();
-        }
-        function onKeyDownHandler(e) {
-            onKeyDown(e);
-        }
-
         function onChangeHandler() {
             onChange();
-        }
-
-        if (!todoTitle.hasAttribute('data-event-bound')) {
-            todoTitle.addEventListener('blur', onBlurHandler);
-            todoTitle.addEventListener('keydown', onKeyDownHandler);
-            todoTitle.setAttribute('data-event-bound', true);
         }
 
         todoCompleted.addEventListener('change', onChangeHandler);
@@ -109,7 +94,13 @@ export const displayModule = (function() {
         $listItem.appendChild($todoTitle);
         $listItem.appendChild($todoOptions);
 
-        addEvents($listItem);
+        function submitCallback() {
+            todoInterface.handleTodoSubmit($listItem);
+            updateTodos();
+            toggleAddTodoButton('enabled');
+        }
+        addTextInputEvents($todoTitle, submitCallback);
+        addCheckboxEvents($todoCompleted);
         return $listItem
     }
 
@@ -167,9 +158,9 @@ export const displayModule = (function() {
         document.querySelector('.edit-title').value = todo.querySelector('.todo-title').value;
     }
 
+    //IDEA: hacer que al hacer submit a algun valor, en vez de autollamarse otra vez, que solo actualize los valores de los campos.
     const editMenuListeners = {
-        textInputListener: null,
-        checkboxListener: null
+        checkboxListener: null,
     }
     
     function updateEditMenu(todo) {
@@ -181,38 +172,33 @@ export const displayModule = (function() {
         updateEditMenuFields(todo);
 
         $editCompleted.removeEventListener('change', editMenuListeners.checkboxListener)
-        $editTitle.removeEventListener('keydown', editMenuListeners.textInputListener);
+        $editDueDate.removeEventListener('change', editMenuListeners.dateListener)
 
-        function onChange() {
+        function onCompletedChange() {
             todoInterface.handleCompletedChange(todo.dataset.id)
-            updatePage();
+            updateTodos();
+            updateEditMenuFields($todoEditMenu.dataset.id);
         }
 
-        function onChangeHandler() {
-            onChange();
+        function onCompletedChangeHandler() {
+            onCompletedChange();
         }
 
-        function onKeyDown(event) {
-            function getEditingTodo() {
-                const $domTodos = document.querySelectorAll('.todo');
-                return [...$domTodos].find(domTodo => domTodo.dataset.id === $todoEditMenu.dataset.id)
-            }
-            if(event.key === 'Enter') {
-                todoInterface.updateTodoTitle($todoEditMenu.dataset.id, $editTitle.value);
-                updateTodos();
-                updateEditMenuFields(getEditingTodo());
-            }
+        function submitCallback() {
+            todoInterface.updateTodoTitle($todoEditMenu.dataset.id, $editTitle.value);
+            updateTodos();
+            updateEditMenuFields($todoEditMenu.dataset.id);
         }
 
-        function onKeyDownHandler(e) {
-            onKeyDown(e);
         }
 
 
-        $editCompleted.addEventListener('change', onChangeHandler)
-        editMenuListeners.checkboxListener = onChangeHandler;
-        $editTitle.addEventListener('keydown', onKeyDownHandler)
-        editMenuListeners.textInputListener = onKeyDownHandler;
+
+        $editCompleted.addEventListener('change', onCompletedChangeHandler)
+        editMenuListeners.checkboxListener = onCompletedChangeHandler;
+
+        addTextInputEvents($editTitle, submitCallback);
+
     }
 
     function changeCategory(categoryName) {

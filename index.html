@@ -9,7 +9,7 @@
 </head>
 <body>
     <aside>
-        <ul>
+        <ul class="main-categories-list">
             <button data-category="today">
                 <li>
                     <span class="material-symbols-outlined">
@@ -45,6 +45,7 @@
     </aside>
     <div class="vertical-divider"></div>
     <main>
+        <h1>Today</h1>
         <ul class="todo-list">
 
         </ul>
@@ -58,12 +59,23 @@
     <div class="vertical-divider"></div>
     <div class="todo-edit">
         <h3>Todo edit</h3>
-        <div>
-            <input type="checkbox" class="edit-completed">
-            <label for="edit-menu-todo-title">Title</label>
-            <input type="text" id="edit-menu-todo-title" class="edit-title">
-            <label for="edit-menu-due-date">Title</label>
-            <input type="date" id="edit-menu-due-date">
+        <div class="edit-fields">
+            <div>
+                <input type="checkbox" class="edit-completed">
+                <input type="text" class="edit-title">
+            </div>
+            <div>
+                <label for="edit-menu-due-date">Due date</label>
+                <input type="date" id="edit-menu-due-date" class="edit-due-date">
+            </div>
+            <div>
+                <select>
+                    <option value="" disabled selected hidden>Priority</optionZ>
+                    <option value="low">Low priority</option>
+                    <option value="medium">Medium priority</option>
+                    <option value="high">High priority</option>
+                </select>
+            </div>
         </div>
     </div>
 </body>
