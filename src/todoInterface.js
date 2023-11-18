@@ -1,3 +1,6 @@
+//will use the cdn until i need to use webpack
+import {compareAsc, parseISO} from 'https://cdn.jsdelivr.net/npm/date-fns@2.30.0/+esm';
+
 //import { displayModule } from "./display.js";
 import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
@@ -14,7 +17,7 @@ export const todoInterface = (function () {
     }
 
     function handleTodoSubmit(domTodo) {
-        const todoTitle = domTodo.children[1];
+        const todoTitle = domTodo.querySelector('.todo-title');
 
         function addNewTodo() {
             const newTodo = new Todo(todoTitle.value, '', false, '', '');
@@ -37,5 +40,14 @@ export const todoInterface = (function () {
         todoInList.toggleCompleted();
     }
 
-    return { handleTodoSubmit, updateTodoTitle, handleCompletedChange }
+    function handleDateChange(id, newDueDate) {
+        const todoInList = todoController.getTodoById(id);
+        todoInList.dueDate = newDueDate
+    }
+
+    function sortListByDueDate(todoList) {
+        todoList.sort((a, b) => compareAsc(parseISO(a.dueDate), parseISO(b.dueDate)));
+    }
+
+    return { handleTodoSubmit, updateTodoTitle, handleCompletedChange, handleDateChange, sortListByDueDate }
 })()

@@ -1,6 +1,7 @@
 //import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
 import { todoInterface } from "./todoInterface.js";
+import { formatToRelativeDate } from "./utilities.js";
 
 export const displayModule = (function() {
 
@@ -49,7 +50,7 @@ export const displayModule = (function() {
         todoCompleted.addEventListener('change', onChangeHandler);
     }
 
-    function createTodo({title = '', completed = false, id = null} = {}) {
+    function createTodo({title = '', completed = false, id = null, dueDate = ''} = {}) {
         const $listItem = document.createElement('li');
         $listItem.className = 'todo';
         if(id) {
@@ -66,14 +67,32 @@ export const displayModule = (function() {
         $todoCompleted.checked = completed;
         $todoCompleted.className = 'todo-completed'
 
+        const $todoText = document.createElement('div');
+        $todoText.className = 'todo-text';
+        $todoText.appendChild($todoTitle)
+
+        if(dueDate !== '') {
+            const $todoDueDate = document.createElement('div');
+            $todoDueDate.className = 'todo-due-date';
+            const $dueDateIcon = document.createElement('span');
+            $dueDateIcon.className = 'material-symbols-outlined';
+            $dueDateIcon.textContent = 'schedule';
+            const $dueDateText = document.createElement('span');
+            $dueDateText.textContent = formatToRelativeDate(dueDate);
+
+            $todoDueDate.appendChild($dueDateIcon);
+            $todoDueDate.appendChild($dueDateText);
+            $todoText.appendChild($todoDueDate)
+        }
+
 
         const $todoOptions = document.createElement('buttton');
         $todoOptions.removeEventListener('click', onClickHandler);
 
         $todoOptions.className = 'todo-options';
         const $optionsIcon = document.createElement('span');
-        $todoOptions.className = 'material-symbols-outlined';
-        $todoOptions.textContent = 'more_vert';
+        $optionsIcon.className = 'material-symbols-outlined';
+        $optionsIcon.textContent = 'more_vert';
         $todoOptions.appendChild($optionsIcon);
 
         function onClick() {
@@ -91,7 +110,7 @@ export const displayModule = (function() {
         $todoOptions.addEventListener('click', onClickHandler);
 
         $listItem.appendChild($todoCompleted);
-        $listItem.appendChild($todoTitle);
+        $listItem.appendChild($todoText);
         $listItem.appendChild($todoOptions);
 
         function submitCallback() {
@@ -105,6 +124,7 @@ export const displayModule = (function() {
     }
 
     function displayTodos(todos) {
+        todoInterface.sortListByDueDate(todos);
         const $list = document.querySelector('.todo-list');
         todos.forEach(todo => {
             const $listTodo = createTodo(todo);
@@ -153,23 +173,27 @@ export const displayModule = (function() {
         $todoEditMenu.style.width = 'calc(100% - ((100% / 7) * 5))';
     }   
 
-    function updateEditMenuFields(todo) {
-        document.querySelector('.edit-completed').checked = todo.querySelector('.todo.completed').checked;
-        document.querySelector('.edit-title').value = todo.querySelector('.todo-title').value;
+    function updateEditMenuFields(id) {
+        const listTodo = todoController.getTodoById(id);
+        document.querySelector('.edit-completed').checked = listTodo.completed;
+        document.querySelector('.edit-title').value = listTodo.title;
+        document.querySelector('.edit-due-date').value = listTodo.dueDate;
     }
 
     //IDEA: hacer que al hacer submit a algun valor, en vez de autollamarse otra vez, que solo actualize los valores de los campos.
     const editMenuListeners = {
         checkboxListener: null,
+        dateListener: null
     }
     
     function updateEditMenu(todo) {
         const $todoEditMenu = document.querySelector('.todo-edit');
         $todoEditMenu.dataset.id = todo.dataset.id;
         
-        const $editCompleted = $todoEditMenu.querySelector('.todo-completed');
-        const $editTitle = $todoEditMenu.querySelector('.todo-title');
-        updateEditMenuFields(todo);
+        const $editCompleted = $todoEditMenu.querySelector('.edit-completed');
+        const $editTitle = $todoEditMenu.querySelector('.edit-title');
+        const $editDueDate = $todoEditMenu.querySelector('.edit-due-date')
+        updateEditMenuFields($todoEditMenu.dataset.id);
 
         $editCompleted.removeEventListener('change', editMenuListeners.checkboxListener)
         $editDueDate.removeEventListener('change', editMenuListeners.dateListener)
@@ -190,8 +214,15 @@ export const displayModule = (function() {
             updateEditMenuFields($todoEditMenu.dataset.id);
         }
 
+        function onDateChange() {
+            todoInterface.handleDateChange($todoEditMenu.dataset.id, $editDueDate.value);
+            updateTodos();
+            updateEditMenuFields($todoEditMenu.dataset.id);
         }
 
+        function onDateChangeHandler() {
+            onDateChange();
+        }
 
 
         $editCompleted.addEventListener('change', onCompletedChangeHandler)
@@ -199,6 +230,8 @@ export const displayModule = (function() {
 
         addTextInputEvents($editTitle, submitCallback);
 
+        $editDueDate.addEventListener('change', onDateChangeHandler)
+        editMenuListeners.dateListener = onDateChangeHandler;
     }
 
     function changeCategory(categoryName) {
