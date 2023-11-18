@@ -98,9 +98,20 @@ export const todoController = (function() {
         return currentCategory.getTodoById(id);
     }
 
+    function addCategory(name) {
+        todo.addCategory(name);
+    }
+
     addTodo(new Todo('todo 1', '', false, '', ''));
     addTodo(new Todo('todo 2', '', true, '', ''));
 
-    return {addTodo, editTodo, switchCategory, getTodos, getTodoById}
+    return {
+        addTodo, 
+        editTodo, 
+        switchCategory, 
+        getTodos, 
+        getTodoById,
+        addCategory
+    }
 })()
 

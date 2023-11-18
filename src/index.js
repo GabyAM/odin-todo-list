@@ -14,4 +14,9 @@ $categoryButtons.forEach(button => {
     })
 })
 
+const $addCategoryButton = document.querySelector('.add-category-button');
+$addCategoryButton.addEventListener('click', () => {
+    displayModule.displayCategoryPlaceholder();
+})
+
 

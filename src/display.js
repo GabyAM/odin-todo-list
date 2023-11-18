@@ -168,9 +168,13 @@ export const displayModule = (function() {
         $todoTitle.focus();
     }
 
+    function hideEditMenu() {
+        document.querySelector('.todo-edit').style.visibility = 'hidden';
+    }
+
     function showEditMenu() {
         const $todoEditMenu = document.querySelector('.todo-edit');
-        $todoEditMenu.style.width = 'calc(100% - ((100% / 7) * 5))';
+        $todoEditMenu.style.visibility = 'visible';
     }   
 
     function updateEditMenuFields(id) {
@@ -236,7 +240,46 @@ export const displayModule = (function() {
 
     function changeCategory(categoryName) {
         todoController.switchCategory(categoryName);
+        hideEditMenu();
         updateTodos();
+    }
+
+    function displayCategoryPlaceholder() {
+        const $categoryButton = document.createElement('button');
+        const $listCategory = document.createElement('li');
+        const $categoryIcon = document.createElement('span');
+        const $categoryTitle = document.createElement('input');
+
+        $categoryIcon.className = 'material-symbols-outlined';
+        $categoryIcon.textContent = 'list';
+
+        $categoryTitle.type = 'text';
+
+        $listCategory.appendChild($categoryIcon);
+        $listCategory.appendChild($categoryTitle);
+        $categoryButton.appendChild($listCategory);
+
+        document.querySelector('.custom-categories-list').appendChild($categoryButton);
+
+        function submitCallback() {
+            console.log('callback...')
+            todoController.addCategory($categoryTitle.value)
+            $categoryButton.dataset.category = $categoryTitle.value;
+
+            //replace input by h3
+            $listCategory.removeChild($categoryTitle);
+            const setTitle = document.createElement('h3');
+            setTitle.textContent = $categoryButton.dataset.category;
+            $listCategory.appendChild(setTitle);
+
+            $categoryButton.addEventListener('click', () => {
+                console.log('kaching!')
+                changeCategory($categoryButton.dataset.category);
+            })
+        }
+
+        $categoryTitle.focus();
+        addTextInputEvents($categoryTitle, submitCallback);
     }
 
     updatePage();
@@ -244,7 +287,8 @@ export const displayModule = (function() {
     return {
         changeCategory, 
         displayTodoPlaceholder,
-        updateTodos
+        updateTodos,
+        displayCategoryPlaceholder
     }
 })()
 
