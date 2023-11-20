@@ -48,10 +48,11 @@
     </aside>
     <div class="vertical-divider"></div>
     <main>
-        <h1>Today</h1>
-        <ul class="todo-list">
-
-        </ul>
+        <div class="main-content">
+            <h1>Today</h1>
+            <ul class="todo-list">
+            </ul>
+        </div>
         <button class="add-todo-button">
             <span class="material-symbols-outlined">
                 playlist_add
@@ -72,14 +73,29 @@
                 <input type="date" id="edit-menu-due-date" class="edit-due-date">
             </div>
             <div>
-                <select>
-                    <option value="" disabled selected hidden>Priority</optionZ>
-                    <option value="low">Low priority</option>
-                    <option value="medium">Medium priority</option>
-                    <option value="high">High priority</option>
-                </select>
+                <h3>Priority</h3>
+                <label for="low-priority">Low</label>
+                <input type="radio" value="low" name="priority" id="low-priority">
+                <label for="medium-priority">Medium</label>
+                <input type="radio" value="medium" name="priority" id="medium-priority">
+                <label for="high-priority">High</label>
+                <input type="radio" value="high" name="priority" id="high-priority">
+            </div>
+            <div>
+                <button data-category="upcoming" class="add-to-category-button upcoming">
+                    Add to upcoming
+                </button>
+                <button data-category="important" class="add-to-category-button important">
+                    Add to important
+                </button>
             </div>
         </div>
+        <button class="delete-todo-button">
+            <span class="material-symbols-outlined">
+                delete
+            </span>
+        </button>
+    </div>
     </div>
 </body>
 <script type="module" src="src/index.js"></script>
