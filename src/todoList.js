@@ -28,7 +28,11 @@ function createCategory(name) {
         return todos.find(todo => todo.id === id);
     }
 
-    return {getName, addTodo, removeTodo, editTodo, getTodos, getTodoById}
+    function hasTodo(id) {
+        return getTodoById(id) !== undefined;
+    }
+
+    return {getName, addTodo, removeTodo, editTodo, getTodos, getTodoById, hasTodo}
 }
 
 export const todo = (function() {
@@ -95,9 +99,10 @@ export const todoController = (function() {
 
     function updateTodoDate(id, newDate, isUpcoming) {
         const listTodo = currentCategory.getTodoById(id);
+        const upcomingCategory = todo.getCategoryByName('upcoming');
         listTodo.dueDate = newDate;
-        if(isUpcoming) {
-            todo.addTodo(todo.getCategoryByName('upcoming'), listTodo)
+        if(isUpcoming && !upcomingCategory.hasTodo(id)) {
+            todo.addTodo(upcomingCategory, listTodo)
         }
     }
 

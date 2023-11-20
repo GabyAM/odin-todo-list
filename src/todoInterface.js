@@ -50,5 +50,4 @@ export const todoInterface = (function () {
         todoList.sort((a, b) => compareAsc(parseISO(a.dueDate), parseISO(b.dueDate)));
     }
 
-    return { handleTodoSubmit, updateTodoTitle, handleCompletedChange, handleDateChange, sortListByDueDate }
 })()
