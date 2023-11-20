@@ -118,6 +118,7 @@ export const displayModule = (function() {
         }
         function checkboxCallback() {
             todoInterface.handleCompletedChange($listItem.dataset.id);
+            updateTodos();
         }
 
         addTextInputEvents($todoTitle, submitCallback);
@@ -190,16 +191,20 @@ export const displayModule = (function() {
             options.appendChild(placeholderOption)
             const customCategories = [...document.querySelectorAll('.custom-categories-list button')];
             customCategories.forEach(categoryElement => {
-                const title = categoryElement.dataset.category;
-                const categoryOption = document.createElement('option');
-                categoryOption.value = title;
-                categoryOption.textContent = title
-                options.appendChild(categoryOption);
+                if(categoryElement.dataset.category !== todoController.getCurrentCategoryName()) {
+                    const title = categoryElement.dataset.category;
+                    const categoryOption = document.createElement('option');
+                    categoryOption.value = title;
+                    categoryOption.textContent = title
+                    options.appendChild(categoryOption);
+                }
             })
 
             options.addEventListener('change', () => {
                 const todoId = document.querySelector('.todo-edit').dataset.id;
-                todoController.addTodoToCategory(todoId, options.value);
+                todoInterface.moveTodoToCategory(todoId, options.value);
+                updatePage();
+                hideEditMenu();
             })
             return options;
         }
@@ -227,74 +232,104 @@ export const displayModule = (function() {
     }
     
     function updateEditMenu(todo) {
+
         const $todoEditMenu = document.querySelector('.todo-edit');
-        const $todoEditFields = $todoEditMenu.querySelector('.edit-fields');
         $todoEditMenu.dataset.id = todo.dataset.id;
+
+        function handleCheckboxEvent() {
+            const $editCompleted = document.querySelector('.edit-completed');
+
+            function checkboxCallback() {
+                todoInterface.handleCompletedChange($todoEditMenu.dataset.id)
+                updateTodos();
+                updateEditMenuFields($todoEditMenu.dataset.id);
+            }
+
+            addCheckboxEvents($editCompleted, checkboxCallback);
+        }
+
+        function handleTitleEvents() {
+            const $editTitle = $todoEditMenu.querySelector('.edit-title');
+
+            function submitCallback() {
+                todoInterface.updateTodoTitle($todoEditMenu.dataset.id, $editTitle.value);
+                updateTodos();
+                updateEditMenuFields($todoEditMenu.dataset.id);
+            }
+
+            addTextInputEvents($editTitle, submitCallback);
+        }
+
+        function handleDateEvent() {
+            const $editDueDate = $todoEditMenu.querySelector('.edit-due-date');
+            $editDueDate.removeEventListener('change', editMenuListeners.dateListener)
+
+            function onDateChange() {
+                todoInterface.handleDateChange($todoEditMenu.dataset.id, $editDueDate.value);
+                updateTodos();
+                updateEditMenuFields($todoEditMenu.dataset.id);
+            }
+
+            $editDueDate.addEventListener('change', onDateChange)
+            editMenuListeners.dateListener = onDateChange;
+    
+        }
+
+        function handleCategoryButtonsEvents() {
+            const $addToCategoryButtons = document.querySelectorAll('.add-to-category-button');
+
+            function categoryAdd(event) {
+                const button = event.target;
+                if(!todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.category)) {
+                    addToMainCategory(button.dataset.category);      
+                }
+            } 
+    
+            function handleCategoryAdd(e) {
+                categoryAdd(e);
+            }
+
+            $addToCategoryButtons.forEach(button => button.addEventListener('click', handleCategoryAdd))
+        }
+
+        function handleDeleteButtonEvent() {
+            const $deleteTodoButton = $todoEditMenu.querySelector('.delete-todo-button');
+            
+            function callback () { 
+                todoController.removeTodoFromCategory($todoEditMenu.dataset.id);
+                updatePage();
+                hideEditMenu();
+            }
+
+            if(!$deleteTodoButton.hasAttribute('data-event-bound')) {
+                $deleteTodoButton.addEventListener('click', callback)
+                $deleteTodoButton.setAttribute('data-event-bound', true);
+            }
+        }
+
+        function handleCategorySelectEvents() {
+            const $todoEditFields = $todoEditMenu.querySelector('.edit-fields');
+            if(document.querySelectorAll('.custom-categories-list > *').length > 0) {
+                if($todoEditFields.querySelector('select') !== null) { 
+                    $todoEditFields.removeChild(document.querySelector('.custom-categories-container'));
+                }
+                const $optionsContainer = createCustomCategorySection();
+                $todoEditFields.appendChild($optionsContainer);
+            }
+        }
+
+        todo.classList.add('active');
         
-        const $editCompleted = $todoEditMenu.querySelector('.edit-completed');
-        const $editTitle = $todoEditMenu.querySelector('.edit-title');
-        const $editDueDate = $todoEditMenu.querySelector('.edit-due-date')
         updateEditMenuFields($todoEditMenu.dataset.id);
 
-        $editDueDate.removeEventListener('change', editMenuListeners.dateListener)
+        handleCheckboxEvent();
+        handleTitleEvents();
+        handleDateEvent();
+        handleCategoryButtonsEvents();
+        handleCategorySelectEvents();
+        handleDeleteButtonEvent();
+    }
 
-        function checkboxCallback() {
-            todoInterface.handleCompletedChange($todoEditMenu.dataset.id)
-            updateTodos();
-            updateEditMenuFields($todoEditMenu.dataset.id);
-        }
-
-        function submitCallback() {
-            todoInterface.updateTodoTitle($todoEditMenu.dataset.id, $editTitle.value);
-            updateTodos();
-            updateEditMenuFields($todoEditMenu.dataset.id);
-        }
-
-        function onDateChange() {
-            todoInterface.handleDateChange($todoEditMenu.dataset.id, $editDueDate.value);
-            updateTodos();
-            updateEditMenuFields($todoEditMenu.dataset.id);
-        }
-
-        function onDateChangeHandler() {
-            onDateChange();
-        }
-
-        addTextInputEvents($editTitle, submitCallback);
-        addCheckboxEvents($editCompleted, checkboxCallback);
-
-        $editDueDate.addEventListener('change', onDateChangeHandler)
-        editMenuListeners.dateListener = onDateChangeHandler;
-
-        function categoryAdd(event) {
-            const button = event.target;
-            if(!todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.category)) {
-                addToMainCategory(button.dataset.category);      
-            }
-        } //pleaseee!!
-
-        function handleCategoryAdd(e) {
-            categoryAdd(e);
-        }
-
-        const $addToCategoryButtons = document.querySelectorAll('.add-to-category-button');
-        $addToCategoryButtons.forEach(button => button.addEventListener('click', handleCategoryAdd)
-        )
-
-        if(document.querySelectorAll('.custom-categories-list > *').length > 0) { //to fix
-            if($todoEditFields.querySelector('select') !== null) { 
-                $todoEditFields.removeChild(document.querySelector('.custom-categories-container'));
-            }
-            const $optionsContainer = createCustomCategorySection();
-            $todoEditMenu.querySelector('.edit-fields').appendChild($optionsContainer);
-        }
-
-        const $deleteTodoButton = $todoEditMenu.querySelector('.delete-todo-button');
-        $deleteTodoButton.addEventListener('click', () => {
-            todoController.removeTodoFromCategory($todoEditMenu.dataset.id);
-            updatePage();
-            hideEditMenu();
-        })
     function updateTitle() {
         const title = document.querySelector('h1');
         const categoryName = todoController.getCurrentCategoryName();
@@ -355,7 +390,6 @@ export const displayModule = (function() {
         changeCategory, 
         displayTodoPlaceholder,
         updateTodos,
-        displayCategoryPlaceholder
         displayCategoryPlaceholder,
         addToMainCategory
     }
