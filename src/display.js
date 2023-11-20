@@ -180,6 +180,40 @@ export const displayModule = (function() {
         $todoEditMenu.style.visibility = 'visible';
     }   
 
+    function createCustomCategorySection() {
+        function createDropdownMenu() {
+            const options = document.createElement('select');
+            const placeholderOption = document.createElement('option');
+            placeholderOption.selected = true;
+            placeholderOption.hidden = true;
+            placeholderOption.textContent = 'Select category'
+            options.appendChild(placeholderOption)
+            const customCategories = [...document.querySelectorAll('.custom-categories-list button')];
+            customCategories.forEach(categoryElement => {
+                const title = categoryElement.dataset.category;
+                const categoryOption = document.createElement('option');
+                categoryOption.value = title;
+                categoryOption.textContent = title
+                options.appendChild(categoryOption);
+            })
+
+            options.addEventListener('change', () => {
+                const todoId = document.querySelector('.todo-edit').dataset.id;
+                todoController.addTodoToCategory(todoId, options.value);
+            })
+            return options;
+        }
+        const optionsContainer = document.createElement('div');
+        const categoryOptions = createDropdownMenu();
+        const optionsTitle = document.createElement('h3');
+        optionsTitle.textContent = 'Move to';
+        optionsContainer.appendChild(optionsTitle);
+        optionsContainer.appendChild(categoryOptions);
+        optionsContainer.className = 'custom-categories-container';
+
+        return optionsContainer;
+    }
+
     function updateEditMenuFields(id) {
         const listTodo = todoController.getTodoById(id);
         document.querySelector('.edit-completed').checked = listTodo.completed;
@@ -194,6 +228,7 @@ export const displayModule = (function() {
     
     function updateEditMenu(todo) {
         const $todoEditMenu = document.querySelector('.todo-edit');
+        const $todoEditFields = $todoEditMenu.querySelector('.edit-fields');
         $todoEditMenu.dataset.id = todo.dataset.id;
         
         const $editCompleted = $todoEditMenu.querySelector('.edit-completed');
@@ -245,6 +280,15 @@ export const displayModule = (function() {
         const $addToCategoryButtons = document.querySelectorAll('.add-to-category-button');
         $addToCategoryButtons.forEach(button => button.addEventListener('click', handleCategoryAdd)
         )
+
+        if(document.querySelectorAll('.custom-categories-list > *').length > 0) { //to fix
+            if($todoEditFields.querySelector('select') !== null) { 
+                $todoEditFields.removeChild(document.querySelector('.custom-categories-container'));
+            }
+            const $optionsContainer = createCustomCategorySection();
+            $todoEditMenu.querySelector('.edit-fields').appendChild($optionsContainer);
+        }
+
         const $deleteTodoButton = $todoEditMenu.querySelector('.delete-todo-button');
         $deleteTodoButton.addEventListener('click', () => {
             todoController.removeTodoFromCategory($todoEditMenu.dataset.id);
@@ -264,6 +308,7 @@ export const displayModule = (function() {
     }
 
     function displayCategoryPlaceholder() {
+        hideEditMenu();
         const $categoryButton = document.createElement('button');
         const $listCategory = document.createElement('li');
         const $categoryIcon = document.createElement('span');

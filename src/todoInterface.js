@@ -52,6 +52,12 @@ export const todoInterface = (function () {
     function isTodoInCategory(id, categoryName) {
         return todoController.isTodoInCategory(id, categoryName);
     }
+
+    function moveTodoToCategory(id, categoryName) {
+        todoController.addTodoToCategory(id, categoryName);
+        todoController.removeTodoFromCategory(id, categoryName);
+    }
+
     return { 
         handleTodoSubmit, 
         updateTodoTitle, 
@@ -59,5 +65,6 @@ export const todoInterface = (function () {
         handleDateChange, 
         sortListByDueDate,
         isTodoInCategory,
+        moveTodoToCategory
      }
 })()
