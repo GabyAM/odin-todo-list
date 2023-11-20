@@ -36,18 +36,16 @@ export const displayModule = (function() {
         }
     }
 
-    function addCheckboxEvents(todoCompleted) {
-
-        function onChange() {
-            todoInterface.handleCompletedChange(todo.dataset.id);
-            //updateTodos();
-        }
+    function addCheckboxEvents(input, callback) {
 
         function onChangeHandler() {
-            onChange();
+            callback();
         }
-
-        todoCompleted.addEventListener('change', onChangeHandler);
+        input.removeEventListener('change', onChangeHandler);
+        if (!input.hasAttribute('data-event-bound')) {
+            input.addEventListener('change', onChangeHandler);
+            input.setAttribute('data-event-bound', true);
+        }
     }
 
     function createTodo({title = '', completed = false, id = null, dueDate = ''} = {}) {
@@ -118,8 +116,12 @@ export const displayModule = (function() {
             updateTodos();
             toggleAddTodoButton('enabled');
         }
+        function checkboxCallback() {
+            todoInterface.handleCompletedChange($listItem.dataset.id);
+        }
+
         addTextInputEvents($todoTitle, submitCallback);
-        addCheckboxEvents($todoCompleted);
+        addCheckboxEvents($todoCompleted, checkboxCallback);
         return $listItem
     }
 
@@ -186,7 +188,6 @@ export const displayModule = (function() {
 
     //IDEA: hacer que al hacer submit a algun valor, en vez de autollamarse otra vez, que solo actualize los valores de los campos.
     const editMenuListeners = {
-        checkboxListener: null,
         dateListener: null
     }
     
@@ -199,17 +200,12 @@ export const displayModule = (function() {
         const $editDueDate = $todoEditMenu.querySelector('.edit-due-date')
         updateEditMenuFields($todoEditMenu.dataset.id);
 
-        $editCompleted.removeEventListener('change', editMenuListeners.checkboxListener)
         $editDueDate.removeEventListener('change', editMenuListeners.dateListener)
 
-        function onCompletedChange() {
-            todoInterface.handleCompletedChange(todo.dataset.id)
+        function checkboxCallback() {
+            todoInterface.handleCompletedChange($todoEditMenu.dataset.id)
             updateTodos();
             updateEditMenuFields($todoEditMenu.dataset.id);
-        }
-
-        function onCompletedChangeHandler() {
-            onCompletedChange();
         }
 
         function submitCallback() {
@@ -228,11 +224,8 @@ export const displayModule = (function() {
             onDateChange();
         }
 
-
-        $editCompleted.addEventListener('change', onCompletedChangeHandler)
-        editMenuListeners.checkboxListener = onCompletedChangeHandler;
-
         addTextInputEvents($editTitle, submitCallback);
+        addCheckboxEvents($editCompleted, checkboxCallback);
 
         $editDueDate.addEventListener('change', onDateChangeHandler)
         editMenuListeners.dateListener = onDateChangeHandler;
