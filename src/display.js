@@ -147,6 +147,7 @@ export const displayModule = (function() {
     }
 
     function updatePage() {
+        updateTitle();
         updateTodos();
     }
 
@@ -244,12 +245,16 @@ export const displayModule = (function() {
         const $addToCategoryButtons = document.querySelectorAll('.add-to-category-button');
         $addToCategoryButtons.forEach(button => button.addEventListener('click', handleCategoryAdd)
         )
+    function updateTitle() {
+        const title = document.querySelector('h1');
+        const categoryName = todoController.getCurrentCategoryName();
+        title.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
     }
 
     function changeCategory(categoryName) {
         todoController.switchCategory(categoryName);
         hideEditMenu();
-        updateTodos();
+        updatePage();
     }
 
     function displayCategoryPlaceholder() {

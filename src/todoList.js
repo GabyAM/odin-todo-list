@@ -97,6 +97,10 @@ export const todoController = (function() {
         currentCategory = todo.getCategoryByName(categoryName);
     }
 
+    function getCurrentCategoryName() {
+        return currentCategory.getName();
+    }
+
     function getTodos() {
         return currentCategory.getTodos();
     }
@@ -115,6 +119,7 @@ export const todoController = (function() {
     return {
         addTodo,  
         switchCategory, 
+        getCurrentCategoryName,
         getTodos, 
         getTodoById,
         addCategory,
