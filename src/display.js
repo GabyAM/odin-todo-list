@@ -229,6 +229,21 @@ export const displayModule = (function() {
 
         $editDueDate.addEventListener('change', onDateChangeHandler)
         editMenuListeners.dateListener = onDateChangeHandler;
+
+        function categoryAdd(event) {
+            const button = event.target;
+            if(!todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.category)) {
+                addToMainCategory(button.dataset.category);      
+            }
+        } //pleaseee!!
+
+        function handleCategoryAdd(e) {
+            categoryAdd(e);
+        }
+
+        const $addToCategoryButtons = document.querySelectorAll('.add-to-category-button');
+        $addToCategoryButtons.forEach(button => button.addEventListener('click', handleCategoryAdd)
+        )
     }
 
     function changeCategory(categoryName) {
@@ -255,7 +270,6 @@ export const displayModule = (function() {
         document.querySelector('.custom-categories-list').appendChild($categoryButton);
 
         function submitCallback() {
-            console.log('callback...')
             todoController.addCategory($categoryTitle.value)
             $categoryButton.dataset.category = $categoryTitle.value;
 
@@ -266,13 +280,17 @@ export const displayModule = (function() {
             $listCategory.appendChild(setTitle);
 
             $categoryButton.addEventListener('click', () => {
-                console.log('kaching!')
                 changeCategory($categoryButton.dataset.category);
             })
         }
 
         $categoryTitle.focus();
         addTextInputEvents($categoryTitle, submitCallback);
+    }
+
+    function addToMainCategory(categoryName) {
+        const id = document.querySelector('.todo-edit').dataset.id;
+        todoController.addTodoToCategory(id, categoryName);
     }
 
     updatePage();
@@ -282,6 +300,8 @@ export const displayModule = (function() {
         displayTodoPlaceholder,
         updateTodos,
         displayCategoryPlaceholder
+        displayCategoryPlaceholder,
+        addToMainCategory
     }
 })()
 
