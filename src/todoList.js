@@ -126,11 +126,21 @@ export const todoController = (function() {
         todo.addCategory(name);
     }
 
+    function addTodoToCategory(id, categoryName) {
+        const listTodo = currentCategory.getTodoById(id);
+        const category = todo.getCategoryByName(categoryName);
+        category.addTodo(listTodo);
+    }
+
+    function isTodoInCategory(id, categoryName) {
+        const category = todo.getCategoryByName(categoryName);
+        return category.hasTodo(id);
+    }
+
     addTodo(new Todo('todo 1', '', false, '', ''));
     addTodo(new Todo('todo 2', '', true, '', ''));
 
     return {
-        addTodo,  
         addTodo,
         removeTodoFromCategory,
         addTodoToCategory,

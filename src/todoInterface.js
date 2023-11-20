@@ -42,7 +42,6 @@ export const todoInterface = (function () {
     }
 
     function handleDateChange(id, newDueDate) {
-
         todoController.updateTodoDate(id, newDueDate, isDateUpcoming(newDueDate));
     }
 
@@ -50,4 +49,15 @@ export const todoInterface = (function () {
         todoList.sort((a, b) => compareAsc(parseISO(a.dueDate), parseISO(b.dueDate)));
     }
 
+    function isTodoInCategory(id, categoryName) {
+        return todoController.isTodoInCategory(id, categoryName);
+    }
+    return { 
+        handleTodoSubmit, 
+        updateTodoTitle, 
+        handleCompletedChange, 
+        handleDateChange, 
+        sortListByDueDate,
+        isTodoInCategory,
+     }
 })()
