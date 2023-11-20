@@ -85,6 +85,14 @@ export const todoController = (function() {
         }
     }
 
+    function removeTodoFromCategory(id, categoryName = getCurrentCategoryName()) {
+        if(categoryName === getCurrentCategoryName()) {
+            currentCategory.removeTodo(id);
+        } else {
+            todo.getCategoryByName(categoryName).removeTodo(id);
+        }
+    }
+
     function updateTodoDate(id, newDate, isUpcoming) {
         const listTodo = currentCategory.getTodoById(id);
         listTodo.dueDate = newDate;
@@ -118,12 +126,16 @@ export const todoController = (function() {
 
     return {
         addTodo,  
+        addTodo,
+        removeTodoFromCategory,
+        addTodoToCategory,
         switchCategory, 
         getCurrentCategoryName,
         getTodos, 
         getTodoById,
         addCategory,
-        updateTodoDate
+        updateTodoDate,
+        isTodoInCategory
     }
 })()
 

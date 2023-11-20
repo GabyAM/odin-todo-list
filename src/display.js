@@ -245,6 +245,12 @@ export const displayModule = (function() {
         const $addToCategoryButtons = document.querySelectorAll('.add-to-category-button');
         $addToCategoryButtons.forEach(button => button.addEventListener('click', handleCategoryAdd)
         )
+        const $deleteTodoButton = $todoEditMenu.querySelector('.delete-todo-button');
+        $deleteTodoButton.addEventListener('click', () => {
+            todoController.removeTodoFromCategory($todoEditMenu.dataset.id);
+            updatePage();
+            hideEditMenu();
+        })
     function updateTitle() {
         const title = document.querySelector('h1');
         const categoryName = todoController.getCurrentCategoryName();
