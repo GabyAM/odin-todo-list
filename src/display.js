@@ -203,6 +203,11 @@ export const displayModule = (function() {
         document.querySelector('.todo-edit').removeAttribute('data-id');
     }
 
+    function hideAndUnhighlight() {
+        hideEditMenu();
+        unhighlightEditingTodo()
+    }
+
     function showEditMenu() {
         const $todoEditMenu = document.querySelector('.todo-edit');
         $todoEditMenu.style.visibility = 'visible';
@@ -231,7 +236,7 @@ export const displayModule = (function() {
                 const todoId = document.querySelector('.todo-edit').dataset.id;
                 todoInterface.moveTodoToCategory(todoId, options.value);
                 updatePage();
-                hideEditMenu();
+                hideAndUnhighlight();
             })
             return options;
         }
@@ -324,8 +329,8 @@ export const displayModule = (function() {
             
             function callback () { 
                 todoController.removeTodoFromCategory($todoEditMenu.dataset.id);
-                hideEditMenu();
-                updatePage();
+                hideAndUnhighlight();
+                updateTodos();
             }
 
             if(!$deleteTodoButton.hasAttribute('data-event-bound')) {
@@ -368,8 +373,7 @@ export const displayModule = (function() {
     }
 
     function displayCategoryPlaceholder() {
-        hideEditMenu();
-        unhighlightEditingTodo();
+        hideAndUnhighlight();
         const $categoryButton = document.createElement('button');
         const $listCategory = document.createElement('li');
         const $categoryIcon = document.createElement('span');
@@ -418,7 +422,8 @@ export const displayModule = (function() {
         displayTodoPlaceholder,
         updateTodos,
         displayCategoryPlaceholder,
-        addToMainCategory
+        addToMainCategory,
+        hideAndUnhighlight
     }
 })()
 
