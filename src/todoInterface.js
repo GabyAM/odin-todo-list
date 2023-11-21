@@ -36,6 +36,26 @@ export const todoInterface = (function () {
         }
     }
 
+    function handleCategorySubmit(domCategory) {
+        const $categoryTitle = domCategory.querySelector('input');
+        const $listCategory = domCategory.querySelector('li');
+
+        if($categoryTitle.value !== '') {
+            todoController.addCategory($categoryTitle.value)
+            domCategory.dataset.category = $categoryTitle.value;
+
+            //replace input by h3
+            $listCategory.removeChild($categoryTitle);
+            const setTitle = document.createElement('h3');
+            setTitle.textContent = domCategory.dataset.category;
+            $listCategory.appendChild(setTitle);
+            return true
+        } else {
+            document.querySelector('.custom-categories-list').removeChild(domCategory);
+            return false
+        }
+    }
+
     function handleCompletedChange(id) {
         const todoInList = todoController.getTodoById(id);
         todoInList.toggleCompleted();
@@ -59,7 +79,8 @@ export const todoInterface = (function () {
     }
 
     return { 
-        handleTodoSubmit, 
+        handleTodoSubmit,
+        handleCategorySubmit, 
         updateTodoTitle, 
         handleCompletedChange, 
         handleDateChange, 

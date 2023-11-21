@@ -391,18 +391,11 @@ export const displayModule = (function() {
         document.querySelector('.custom-categories-list').appendChild($categoryButton);
 
         function submitCallback() {
-            todoController.addCategory($categoryTitle.value)
-            $categoryButton.dataset.category = $categoryTitle.value;
-
-            //replace input by h3
-            $listCategory.removeChild($categoryTitle);
-            const setTitle = document.createElement('h3');
-            setTitle.textContent = $categoryButton.dataset.category;
-            $listCategory.appendChild(setTitle);
-
-            $categoryButton.addEventListener('click', () => {
-                changeCategory($categoryButton.dataset.category);
-            })
+            if(todoInterface.handleCategorySubmit($categoryButton)) {
+                $categoryButton.addEventListener('click', () => {
+                    changeCategory($categoryButton.dataset.category);
+                })
+            }
         }
 
         $categoryTitle.focus();
