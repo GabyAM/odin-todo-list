@@ -55,7 +55,7 @@ export const todoInterface = (function () {
 
     function moveTodoToCategory(id, categoryName) {
         todoController.addTodoToCategory(id, categoryName);
-        todoController.removeTodoFromCategory(id, categoryName);
+        todoController.removeTodoFromCategory(id);
     }
 
     return { 

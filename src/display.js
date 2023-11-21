@@ -94,11 +94,14 @@ export const displayModule = (function() {
         $todoOptions.appendChild($optionsIcon);
 
         function onClick() {
-            if(document.querySelector('.todo-edit').style.width === '') {
+            if(document.querySelector('.todo-edit').style.visibility === 'hidden') {
+                console.log('hii')
                 showEditMenu();
+                highlightTodo(id);
                 updateEditMenu($listItem);
             }
             else {
+                highlightTodo(id);
                 updateEditMenu($listItem);
             }
         }
@@ -146,10 +149,30 @@ export const displayModule = (function() {
             updatingTodos = false;
         }
     }
+    
+    function unhighlightEditingTodo() {
+        const domTodos = [...document.querySelectorAll('.todo')];
+        const editingTodo = domTodos.find(todo => todo.classList.contains('active'));
+        if(editingTodo) {
+            editingTodo.classList.remove('active');
+        }
+    }
+
+    function highlightTodo(id) {
+        unhighlightEditingTodo()
+        const domTodos = [...document.querySelectorAll('.todo')]
+        console.log(domTodos)
+        const todo = domTodos.find(todo => todo.dataset.id === id);
+        console.log(todo)
+        todo.classList.add('active');
+    }
 
     function updatePage() {
         updateTitle();
         updateTodos();
+        if(document.querySelector('.todo-edit').hasAttribute('data-id')) {
+            highlightTodo(document.querySelector('.todo-edit').dataset.id);
+        }
     }
 
     function toggleAddTodoButton(type) {
@@ -159,6 +182,9 @@ export const displayModule = (function() {
 
     function displayTodoPlaceholder() {
         toggleAddTodoButton('disabled');
+
+        hideEditMenu();
+        unhighlightEditingTodo();
 
         const $todoList = document.querySelector('.todo-list');
         const $todo = createTodo();
@@ -174,6 +200,7 @@ export const displayModule = (function() {
 
     function hideEditMenu() {
         document.querySelector('.todo-edit').style.visibility = 'hidden';
+        document.querySelector('.todo-edit').removeAttribute('data-id');
     }
 
     function showEditMenu() {
@@ -253,7 +280,7 @@ export const displayModule = (function() {
 
             function submitCallback() {
                 todoInterface.updateTodoTitle($todoEditMenu.dataset.id, $editTitle.value);
-                updateTodos();
+                updatePage();
                 updateEditMenuFields($todoEditMenu.dataset.id);
             }
 
@@ -297,8 +324,8 @@ export const displayModule = (function() {
             
             function callback () { 
                 todoController.removeTodoFromCategory($todoEditMenu.dataset.id);
-                updatePage();
                 hideEditMenu();
+                updatePage();
             }
 
             if(!$deleteTodoButton.hasAttribute('data-event-bound')) {
@@ -317,8 +344,6 @@ export const displayModule = (function() {
                 $todoEditFields.appendChild($optionsContainer);
             }
         }
-
-        todo.classList.add('active');
         
         updateEditMenuFields($todoEditMenu.dataset.id);
 
@@ -344,6 +369,7 @@ export const displayModule = (function() {
 
     function displayCategoryPlaceholder() {
         hideEditMenu();
+        unhighlightEditingTodo();
         const $categoryButton = document.createElement('button');
         const $listCategory = document.createElement('li');
         const $categoryIcon = document.createElement('span');
@@ -384,6 +410,7 @@ export const displayModule = (function() {
         todoController.addTodoToCategory(id, categoryName);
     }
 
+    document.querySelector('.todo-edit').style.visibility = 'hidden';
     updatePage();
 
     return {
