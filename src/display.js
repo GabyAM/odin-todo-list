@@ -121,7 +121,7 @@ export const displayModule = (function() {
         }
         function checkboxCallback() {
             todoInterface.handleCompletedChange($listItem.dataset.id);
-            updateTodos();
+            updatePage();
         }
 
         addTextInputEvents($todoTitle, submitCallback);
@@ -161,9 +161,7 @@ export const displayModule = (function() {
     function highlightTodo(id) {
         unhighlightEditingTodo()
         const domTodos = [...document.querySelectorAll('.todo')]
-        console.log(domTodos)
         const todo = domTodos.find(todo => todo.dataset.id === id);
-        console.log(todo)
         todo.classList.add('active');
     }
 
@@ -172,6 +170,7 @@ export const displayModule = (function() {
         updateTodos();
         if(document.querySelector('.todo-edit').hasAttribute('data-id')) {
             highlightTodo(document.querySelector('.todo-edit').dataset.id);
+            updateEditMenuFields(document.querySelector('.todo-edit').dataset.id)
         }
     }
 
@@ -183,12 +182,12 @@ export const displayModule = (function() {
     function displayTodoPlaceholder() {
         toggleAddTodoButton('disabled');
 
-        hideEditMenu();
-        unhighlightEditingTodo();
+        hideAndUnhighlight();
 
         const $todoList = document.querySelector('.todo-list');
         const $todo = createTodo();
         $todo.classList.add('placeholder');
+        $todo.querySelector('.todo-options').style.visibility = 'hidden';
 
         $todoList.appendChild($todo);
 
