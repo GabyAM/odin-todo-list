@@ -8,13 +8,32 @@ import { isDateUpcoming } from './utilities.js';
 
 export const todoInterface = (function () {
 
-    function updateTodoTitle(id, todoTitle) {
+    function updateTodoTitle(todoTitle, id) {
         const todoToEdit = todoController.getTodoById(id);
         if(todoToEdit) {
-            todoToEdit.title = todoTitle;
+                todoToEdit.title = todoTitle;
         } else {
             throw new Error("can't find the todo by id on the list")
         }
+    }
+
+    function editTitle(title, id) {
+        if(title.value !== '' && !isPreviousTitle(title.value, id)) {
+            updateTodoTitle(title.value, id);
+            return true
+        } else if(title.value === '') {
+            title.value = getPreviousTitle(id);
+        }
+        return false
+    }
+
+    function getPreviousTitle(id) {
+        return todoController.getTodoById(id).title;
+    }
+
+    function isPreviousTitle(newTitle, id) {
+        const previousTitle = getPreviousTitle(id);
+        return newTitle === previousTitle;
     }
 
     function handleTodoSubmit(domTodo) {
@@ -26,13 +45,17 @@ export const todoInterface = (function () {
         }
 
         if(domTodo.dataset.id) {
-            updateTodoTitle(domTodo.dataset.id, todoTitle.value);
+            return editTitle(todoTitle, domTodo.dataset.id);
         }
         else {
             domTodo.classList.remove('placeholder');
             if(todoTitle.value !== '') {
                 addNewTodo();
-            } else document.querySelector('.todo-list').removeChild(domTodo);
+                return true
+            } else {
+                document.querySelector('.todo-list').removeChild(domTodo);
+                return false;
+            }
         }
     }
 
@@ -81,7 +104,7 @@ export const todoInterface = (function () {
     return { 
         handleTodoSubmit,
         handleCategorySubmit, 
-        updateTodoTitle, 
+        editTitle, 
         handleCompletedChange, 
         handleDateChange, 
         sortListByDueDate,

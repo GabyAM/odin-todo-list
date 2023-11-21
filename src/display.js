@@ -115,8 +115,9 @@ export const displayModule = (function() {
         $listItem.appendChild($todoOptions);
 
         function submitCallback() {
-            todoInterface.handleTodoSubmit($listItem);
-            updateTodos();
+            if(todoInterface.handleTodoSubmit($listItem)) { //if return true, update page!
+                updatePage();
+            }
             toggleAddTodoButton('enabled');
         }
         function checkboxCallback() {
@@ -283,8 +284,9 @@ export const displayModule = (function() {
             const $editTitle = $todoEditMenu.querySelector('.edit-title');
 
             function submitCallback() {
-                todoInterface.updateTodoTitle($todoEditMenu.dataset.id, $editTitle.value);
-                updatePage();
+                if(todoInterface.editTitle($editTitle, $todoEditMenu.dataset.id)) {
+                    updatePage();
+                }
                 updateEditMenuFields($todoEditMenu.dataset.id);
             }
 
