@@ -19,4 +19,9 @@ $addCategoryButton.addEventListener('click', () => {
     displayModule.displayCategoryPlaceholder();
 })
 
+const $closeEditMenuButton = document.querySelector('.close-menu-button');
+$closeEditMenuButton.addEventListener('click', () => {
+    displayModule.hideAndUnhighlight();
+})
+
 
