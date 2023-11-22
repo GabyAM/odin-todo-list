@@ -22,6 +22,60 @@ body {
     display: grid;
     grid-template-columns: 1fr 2px 4fr 2px 2fr;
 }
+aside {
+    display: grid;
+    grid-template-rows: auto 1px auto auto;
+    max-width: var(--aside-width);
+}
+
+aside ul {
+    display: grid;
+    grid-auto-rows: 50px;
+    align-items: center;
+    padding: 20px;
+    height: fit-content;
+}
+
+aside ul > * {
+    max-width: 100%;
+}
+
+aside ul :nth-child(odd) span {
+    color: var(--primary-color);
+}
+
+aside ul :nth-child(even) span {
+    color: var(--accent-color);
+}
+
+aside ul button {
+    background: none;
+    border: none;
+    max-width: 130px;
+}
+
+.custom-categories-list input {
+    max-width: 110px;
+}
+
+.custom-categories-list h3 {
+    font-size: 0.8rem;
+    max-width: 110px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+aside li, .add-category-button, .add-todo-button {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+aside hr {
+    width: 80%;
+    justify-self: center;
+}
 main {
     grid-column-start: 3;
 }
