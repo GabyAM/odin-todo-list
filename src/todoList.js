@@ -86,6 +86,7 @@ export const todoController = (function() {
         todo.addTodo(currentCategory, newTodo);
         if(currentCategory.getName() !== 'all') {
             todo.addTodo(todo.getCategoryByName('all'), newTodo)
+            newTodo.isDynamic = true;
         }
     }
 
@@ -102,7 +103,14 @@ export const todoController = (function() {
         const upcomingCategory = todo.getCategoryByName('upcoming');
         listTodo.dueDate = newDate;
         if(isUpcoming && !upcomingCategory.hasTodo(id)) {
-            todo.addTodo(upcomingCategory, listTodo)
+            upcomingCategory.addTodo(listTodo);
+            listTodo.isDynamic = true;
+        }
+        else if(listTodo.isDynamic && !isUpcoming && upcomingCategory.hasTodo(id)) {
+            upcomingCategory.removeTodo(id);
+        }
+    }
+
         }
     }
 

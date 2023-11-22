@@ -101,6 +101,10 @@ export const todoInterface = (function () {
         todoController.removeTodoFromCategory(id);
     }
 
+    function wasListModified(previousLength) {
+        return previousLength !== todoController.getTodos().length;
+    }
+
     return { 
         handleTodoSubmit,
         handleCategorySubmit, 
@@ -109,6 +113,7 @@ export const todoInterface = (function () {
         handleDateChange, 
         sortListByDueDate,
         isTodoInCategory,
-        moveTodoToCategory
+        moveTodoToCategory,
+        wasListModified
      }
 })()

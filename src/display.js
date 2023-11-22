@@ -295,12 +295,15 @@ export const displayModule = (function() {
 
         function handleDateEvent() {
             const $editDueDate = $todoEditMenu.querySelector('.edit-due-date');
+            const todoQuantity = document.querySelectorAll('.todo').length;
             $editDueDate.removeEventListener('change', editMenuListeners.dateListener)
 
             function onDateChange() {
-                todoInterface.handleDateChange($todoEditMenu.dataset.id, $editDueDate.value);
+                todoInterface.handleDateChange($todoEditMenu.dataset.id, $editDueDate.value)
                 updateTodos();
-                updateEditMenuFields($todoEditMenu.dataset.id);
+                if(todoInterface.wasListModified(todoQuantity)) {
+                    hideEditMenu();
+                }
             }
 
             $editDueDate.addEventListener('change', onDateChange)

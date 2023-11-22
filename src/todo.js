@@ -7,6 +7,7 @@ export class Todo {
         this.dueDate = dueDate;
         this.priority = priority;
         this.#id = crypto.randomUUID();
+        this.isDynamic = false;
     }
 
     toggleCompleted() {
