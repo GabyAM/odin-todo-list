@@ -1,7 +1,5 @@
-//import { todoInterface } from "./todoInterface.js";
 import { displayModule } from "./display.js";
 import { mainCategoriesIDs } from "./todoList.js";
-//import { todoController } from "./todoList.js";
 
 const $addTodoButton = document.querySelector('.add-todo-button');
 $addTodoButton.addEventListener('click', () => {
