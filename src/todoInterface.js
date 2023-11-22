@@ -1,7 +1,5 @@
-//will use the cdn until i need to use webpack
-import {compareAsc, parseISO} from 'https://cdn.jsdelivr.net/npm/date-fns@2.30.0/+esm';
+import {compareAsc, parseISO} from 'date-fns';
 
-//import { displayModule } from "./display.js";
 import { Todo } from "./todo.js";
 import { todoController } from "./todoList.js";
 import { isDateUpcoming } from './utilities.js';

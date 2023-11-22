@@ -1,4 +1,4 @@
-import { parseISO, formatDistanceToNow, format, add } from 'https://cdn.jsdelivr.net/npm/date-fns@2.30.0/+esm';
+import { parseISO, formatDistanceToNow, format, add } from 'date-fns';
 
 export function formatToRelativeDate(unformattedDate) {
     return formatDistanceToNow(parseISO(unformattedDate), {addSuffix: true});
