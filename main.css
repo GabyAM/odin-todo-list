@@ -1,11 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;700;900&display=swap');
+
 :root {
     --primary-color: #ED975A;
     --secondary-color: #F7F1B6;
     --accent-color: #CA1625;
+    --accent-color-light: #d16b78;
     --background-color: #E3F2FC;
     --background-color-dark: #d7e6f0;
     --text-color: #02090E;
     --alternative-text-color: #e3f4fe;
+
+    --aside-width: calc(calc(1/7) * calc(100vw - 4px));
+    --main-width: calc(calc(4/7) * calc(100vw - 4px));
+    --edit-menu-width: calc(calc(2/7) * calc(100vw - 4px));
 }
 
 * {
@@ -21,7 +28,14 @@ body, html{
 body {
     display: grid;
     grid-template-columns: 1fr 2px 4fr 2px 2fr;
+    background-color: var(--background-color);
+    font-family: 'Raleway', sans-serif;
 }
+
+h1, h3, p, span, label, input {
+    color: var(--text-color);
+}
+
 aside {
     display: grid;
     grid-template-rows: auto 1px auto auto;
@@ -83,6 +97,10 @@ aside hr {
     background-color: var(--primary-color);
 }
 
+.vertical-divider {
+    height: 100%;
+    background-color: var(--background-color-dark);
+}
 
 .add-todo-button {
     background-color: var(--accent-color); 
@@ -229,6 +247,8 @@ h1 {
 .delete-todo-button {
     border: 2px solid var(--text-color);
     background-color: var(--secondary-color);
+    width: 32px;
+    height: 32px;
 }
 
 textarea {
