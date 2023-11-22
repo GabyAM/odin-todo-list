@@ -352,6 +352,7 @@ export const displayModule = (function() {
             function categoryAdd(event) {
                 const button = event.target;
                 if(!todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.id)) {
+                    button.disabled = true;
                     todoInterface.addToMainCategory(button.dataset.id);      
                 }
             } 
@@ -361,6 +362,7 @@ export const displayModule = (function() {
             }
 
             $addToCategoryButtons.forEach((button, index) => {
+                button.disabled = todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.id);
                 button.removeEventListener('click', editMenuListeners.categoryButtonsListeners[index])
                 button.addEventListener('click', handleCategoryAdd)
                 editMenuListeners.categoryButtonsListeners[index] = handleCategoryAdd;

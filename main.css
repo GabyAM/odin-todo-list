@@ -2,6 +2,7 @@
 
 :root {
     --primary-color: #ED975A;
+    --primary-color-light: #f0b890;
     --secondary-color: #F7F1B6;
     --accent-color: #CA1625;
     --accent-color-light: #d16b78;
@@ -240,8 +241,14 @@ h1 {
 .add-to-category-button.upcoming{
     background-color: var(--accent-color);
 }
+.add-to-category-button.upcoming:disabled {
+    background-color: var(--accent-color-light);
+}
 .add-to-category-button.important{
     background-color: var(--primary-color);
+}
+.add-to-category-button.important:disabled{
+    background-color: var(--primary-color-light);
 }
 
 .delete-todo-button {
