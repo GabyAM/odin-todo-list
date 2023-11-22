@@ -15,6 +15,11 @@ function assignIdToMainCategories() {
     domUpcoming.dataset.id = mainCategoriesIDs.upcoming;
     const domImportant = document.querySelector('.main-categories-list button:last-child');
     domImportant.dataset.id = mainCategoriesIDs.important;
+
+    const addToUpcomingButton = document.querySelector('.upcoming');
+    addToUpcomingButton.dataset.id = domUpcoming.dataset.id;
+    const addToImportantButton = document.querySelector('.important');
+    addToImportantButton.dataset.id = domImportant.dataset.id;
 }
 assignIdToMainCategories();
 

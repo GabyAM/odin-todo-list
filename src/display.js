@@ -264,7 +264,8 @@ export const displayModule = (function() {
 
     const editMenuListeners = {
         dateListener: null,
-        priorityListeners: []
+        priorityListeners: [],
+        categoryButtonsListeners: []
     }
     
     function updateEditMenu(todo) {
@@ -359,7 +360,11 @@ export const displayModule = (function() {
                 categoryAdd(e);
             }
 
-            $addToCategoryButtons.forEach(button => button.addEventListener('click', handleCategoryAdd))
+            $addToCategoryButtons.forEach((button, index) => {
+                button.removeEventListener('click', editMenuListeners.categoryButtonsListeners[index])
+                button.addEventListener('click', handleCategoryAdd)
+                editMenuListeners.categoryButtonsListeners[index] = handleCategoryAdd;
+            })
         }
 
         function handleDeleteButtonEvent() {
