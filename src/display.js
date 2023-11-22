@@ -256,11 +256,16 @@ export const displayModule = (function() {
         document.querySelector('.edit-completed').checked = listTodo.completed;
         document.querySelector('.edit-title').value = listTodo.title;
         document.querySelector('.edit-due-date').value = listTodo.dueDate;
+        if(listTodo.priority !== '') {
+            document.querySelector(`#${listTodo.priority}-priority`).checked = true;
+        } else {
+            document.querySelectorAll('[name="priority"]').forEach(radio => radio.checked = false);
+        }
     }
 
-    //IDEA: hacer que al hacer submit a algun valor, en vez de autollamarse otra vez, que solo actualize los valores de los campos.
     const editMenuListeners = {
-        dateListener: null
+        dateListener: null,
+        priorityListeners: []
     }
     
     function updateEditMenu(todo) {
@@ -311,6 +316,26 @@ export const displayModule = (function() {
     
         }
 
+        function handlePriorityEvent() {
+            //idea to know if a todo was deleted: count the length of the list before and after the interface function
+            const $priorityInputs = $todoEditMenu.querySelectorAll('[name="priority"]');
+            const todoQuantity = document.querySelectorAll('.todo').length;
+
+            function callback(e) {
+                todoInterface.handlePriorityChange($todoEditMenu.dataset.id, e.target.value)
+                if(todoInterface.wasListModified(todoQuantity)) {
+                    updateTodos();
+                    hideEditMenu();
+                }
+            }
+
+            $priorityInputs.forEach((input, index) => {
+                input.removeEventListener('change', editMenuListeners.priorityListeners[index])
+                input.addEventListener('change', callback)
+                editMenuListeners.priorityListeners[index] = callback;
+            })  
+        }
+
         function handleCategoryButtonsEvents() {
             const $addToCategoryButtons = document.querySelectorAll('.add-to-category-button');
 
@@ -359,6 +384,7 @@ export const displayModule = (function() {
         handleCheckboxEvent();
         handleTitleEvents();
         handleDateEvent();
+        handlePriorityEvent();
         handleCategoryButtonsEvents();
         handleCategorySelectEvents();
         handleDeleteButtonEvent();

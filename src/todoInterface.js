@@ -88,6 +88,10 @@ export const todoInterface = (function () {
         todoController.updateTodoDate(id, newDueDate, isDateUpcoming(newDueDate));
     }
 
+    function handlePriorityChange(id, priority) {
+        todoController.updateTodoPriority(id, priority)
+    }
+
     function sortListByDueDate(todoList) {
         todoList.sort((a, b) => compareAsc(parseISO(a.dueDate), parseISO(b.dueDate)));
     }
@@ -111,6 +115,7 @@ export const todoInterface = (function () {
         editTitle, 
         handleCompletedChange, 
         handleDateChange, 
+        handlePriorityChange,
         sortListByDueDate,
         isTodoInCategory,
         moveTodoToCategory,

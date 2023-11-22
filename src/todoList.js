@@ -111,6 +111,16 @@ export const todoController = (function() {
         }
     }
 
+    function updateTodoPriority(id, newPriority) {
+        const listTodo = currentCategory.getTodoById(id);
+        const importantCategory = todo.getCategoryByName('important');
+        listTodo.priority = newPriority;
+        if(newPriority === 'high' && !importantCategory.hasTodo(id)) {
+            importantCategory.addTodo(listTodo);
+            listTodo.isDynamic = true;
+        }
+        else if(listTodo.isDynamic && newPriority !== 'high' && importantCategory.hasTodo(id)) {
+            importantCategory.removeTodo(id);
         }
     }
 
@@ -158,6 +168,7 @@ export const todoController = (function() {
         getTodoById,
         addCategory,
         updateTodoDate,
+        updateTodoPriority,
         isTodoInCategory
     }
 })()
