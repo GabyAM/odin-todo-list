@@ -2,9 +2,14 @@ import { Todo } from "./todo.js";
 
 function createCategory(name) {
     let todos = [];
+    const id = crypto.randomUUID();
 
     function getName () {
         return name;
+    }
+
+    function getId() {
+        return id;
     }
 
     function addTodo(todo) {
@@ -32,7 +37,7 @@ function createCategory(name) {
         return getTodoById(id) !== undefined;
     }
 
-    return {getName, addTodo, removeTodo, editTodo, getTodos, getTodoById, hasTodo}
+    return {getName, addTodo, removeTodo, editTodo, getTodos, getTodoById, hasTodo, getId}
 }
 
 export const todo = (function() {
@@ -63,44 +68,72 @@ export const todo = (function() {
         return todos.find(category => category.getName() === name)
     }
 
+    function getCategoryById(id) {
+        return todos.find(category => category.getId() === id)
+    }
+
+    function getAllCategory() {
+        return allCategory;
+    }
+
+    function getUpcomingCategory() {
+        return upcomingCategory;
+    }
+
+    function getImportantCategory() {
+        return importantCategory;
+    }
+
     function addCategory(name) {
         const newCategory = createCategory(name);
         todos.push(newCategory);
+        return newCategory;
     }
 
     return { 
         addTodo,
         removeTodo, 
-        editTodo, 
+        editTodo,
+        getAllCategory,
+        getUpcomingCategory,
+        getImportantCategory,
         getCategoryByName, 
+        getCategoryById,
         addCategory
     }
 })()
 
+export const mainCategoriesIDs = {
+    all: todo.getAllCategory().getId(),
+    upcoming: todo.getUpcomingCategory().getId(),
+    important: todo.getImportantCategory().getId()
+}
+
 export const todoController = (function() {
     
     let currentCategory;
-    switchCategory('all');
+    switchCategory(todo.getAllCategory().getId());
 
     function addTodo(newTodo) {
         todo.addTodo(currentCategory, newTodo);
-        if(currentCategory.getName() !== 'all') {
-            todo.addTodo(todo.getCategoryByName('all'), newTodo)
+        const allCategory = todo.getAllCategory();
+        if(currentCategory.getId() !== allCategory.getId()) {
+            allCategory.addTodo(newTodo);
             newTodo.isDynamic = true;
         }
     }
 
-    function removeTodoFromCategory(id, categoryName = getCurrentCategoryName()) {
-        if(categoryName === getCurrentCategoryName()) {
+    function removeTodoFromCategory(id, categoryId = getCurrentCategoryId()) {
+        if(categoryId === getCurrentCategoryId()) {
             currentCategory.removeTodo(id);
         } else {
-            todo.getCategoryByName(categoryName).removeTodo(id);
+            todo.getCategoryById(categoryId).removeTodo(id);
         }
     }
 
     function updateTodoDate(id, newDate, isUpcoming) {
         const listTodo = currentCategory.getTodoById(id);
-        const upcomingCategory = todo.getCategoryByName('upcoming');
+        const upcomingCategory = todo.getUpcomingCategory();
         listTodo.dueDate = newDate;
         if(isUpcoming && !upcomingCategory.hasTodo(id)) {
             upcomingCategory.addTodo(listTodo);
@@ -113,7 +146,7 @@ export const todoController = (function() {
 
     function updateTodoPriority(id, newPriority) {
         const listTodo = currentCategory.getTodoById(id);
-        const importantCategory = todo.getCategoryByName('important');
+        const importantCategory = todo.getImportantCategory();
         listTodo.priority = newPriority;
         if(newPriority === 'high' && !importantCategory.hasTodo(id)) {
             importantCategory.addTodo(listTodo);
@@ -124,12 +157,16 @@ export const todoController = (function() {
         }
     }
 
-    function switchCategory(categoryName) {
-        currentCategory = todo.getCategoryByName(categoryName);
+    function switchCategory(id) {
+        currentCategory = todo.getCategoryById(id);
+    }
+
+    function getCurrentCategoryId() {
+        return currentCategory.getId();
     }
 
     function getCurrentCategoryName() {
-        return currentCategory.getName();
+        return currentCategory.getName(); //used in title
     }
 
     function getTodos() {
@@ -141,28 +178,28 @@ export const todoController = (function() {
     }
 
     function addCategory(name) {
-        todo.addCategory(name);
+        return todo.addCategory(name);
+
     }
 
-    function addTodoToCategory(id, categoryName) {
-        const listTodo = currentCategory.getTodoById(id);
-        const category = todo.getCategoryByName(categoryName);
+    function addTodoToCategory(listTodo, categoryId = null) {
+        const category = categoryId === null ? currentCategory : todo.getCategoryById(categoryId);
         category.addTodo(listTodo);
     }
 
-    function isTodoInCategory(id, categoryName) {
-        const category = todo.getCategoryByName(categoryName);
-        return category.hasTodo(id);
+    function isTodoInCategory(todoId, categoryId) {
+        const category = todo.getCategoryById(categoryId);
+        return category.hasTodo(todoId);
     }
 
     addTodo(new Todo('todo 1', '', false, '', ''));
     addTodo(new Todo('todo 2', '', true, '', ''));
 
     return {
-        addTodo,
         removeTodoFromCategory,
         addTodoToCategory,
         switchCategory, 
+        getCurrentCategoryId,
         getCurrentCategoryName,
         getTodos, 
         getTodoById,

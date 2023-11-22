@@ -223,11 +223,11 @@ export const displayModule = (function() {
             options.appendChild(placeholderOption)
             const customCategories = [...document.querySelectorAll('.custom-categories-list button')];
             customCategories.forEach(categoryElement => {
-                if(categoryElement.dataset.category !== todoController.getCurrentCategoryName()) {
+                if(categoryElement.dataset.id !== todoController.getCurrentCategoryId()) {
                     const title = categoryElement.dataset.category;
                     const categoryOption = document.createElement('option');
-                    categoryOption.value = title;
-                    categoryOption.textContent = title
+                    categoryOption.value = categoryElement.dataset.id;
+                    categoryOption.textContent = title; 
                     options.appendChild(categoryOption);
                 }
             })
@@ -235,7 +235,7 @@ export const displayModule = (function() {
             options.addEventListener('change', () => {
                 const todoId = document.querySelector('.todo-edit').dataset.id;
                 todoInterface.moveTodoToCategory(todoId, options.value);
-                updatePage();
+                updateTodos();
                 hideAndUnhighlight();
             })
             return options;
@@ -341,7 +341,7 @@ export const displayModule = (function() {
 
             function categoryAdd(event) {
                 const button = event.target;
-                if(!todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.category)) {
+                if(!todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.id)) {
                     addToMainCategory(button.dataset.category);      
                 }
             } 
@@ -396,8 +396,8 @@ export const displayModule = (function() {
         title.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
     }
 
-    function changeCategory(categoryName) {
-        todoController.switchCategory(categoryName);
+    function changeCategory(categoryId) {
+        todoController.switchCategory(categoryId); //dont use todoController!
         hideEditMenu();
         updatePage();
     }
@@ -423,7 +423,7 @@ export const displayModule = (function() {
         function submitCallback() {
             if(todoInterface.handleCategorySubmit($categoryButton)) {
                 $categoryButton.addEventListener('click', () => {
-                    changeCategory($categoryButton.dataset.category);
+                    changeCategory($categoryButton.dataset.id);
                 })
             }
         }
@@ -432,9 +432,9 @@ export const displayModule = (function() {
         addTextInputEvents($categoryTitle, submitCallback);
     }
 
-    function addToMainCategory(categoryName) {
+    function addToMainCategory(categoryId) {
         const id = document.querySelector('.todo-edit').dataset.id;
-        todoController.addTodoToCategory(id, categoryName);
+        todoController.addTodoToCategory(id, categoryId);
     }
 
     document.querySelector('.todo-edit').style.visibility = 'hidden';

@@ -41,7 +41,7 @@ export const todoInterface = (function () {
 
         function addNewTodo() {
             const newTodo = new Todo(todoTitle.value, '', false, '', '');
-            todoController.addTodo(newTodo);
+            todoController.addTodoToCategory(newTodo);
         }
 
         if(domTodo.dataset.id) {
@@ -61,17 +61,20 @@ export const todoInterface = (function () {
 
     function handleCategorySubmit(domCategory) {
         const $categoryTitle = domCategory.querySelector('input');
-        const $listCategory = domCategory.querySelector('li');
+        const $categoryListItem = domCategory.querySelector('li');
 
         if($categoryTitle.value !== '') {
-            todoController.addCategory($categoryTitle.value)
-            domCategory.dataset.category = $categoryTitle.value;
+            const category = todoController.addCategory($categoryTitle.value);
+
+
+            domCategory.dataset.category = category.getName();
+            domCategory.dataset.id = category.getId();
 
             //replace input by h3
-            $listCategory.removeChild($categoryTitle);
+            $categoryListItem.removeChild($categoryTitle);
             const setTitle = document.createElement('h3');
             setTitle.textContent = domCategory.dataset.category;
-            $listCategory.appendChild(setTitle);
+            $categoryListItem.appendChild(setTitle);
             return true
         } else {
             document.querySelector('.custom-categories-list').removeChild(domCategory);
@@ -96,13 +99,14 @@ export const todoInterface = (function () {
         todoList.sort((a, b) => compareAsc(parseISO(a.dueDate), parseISO(b.dueDate)));
     }
 
-    function isTodoInCategory(id, categoryName) {
-        return todoController.isTodoInCategory(id, categoryName);
+    function isTodoInCategory(todoId, categoryId) {
+        return todoController.isTodoInCategory(todoId, categoryId);
     }
 
-    function moveTodoToCategory(id, categoryName) {
-        todoController.addTodoToCategory(id, categoryName);
-        todoController.removeTodoFromCategory(id);
+    function moveTodoToCategory(todoId, categoryId) {
+        const todo = todoController.getTodoById(todoId);
+        todoController.addTodoToCategory(todo, categoryId);
+        todoController.removeTodoFromCategory(todoId);
     }
 
     function wasListModified(previousLength) {
