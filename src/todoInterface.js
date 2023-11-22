@@ -117,7 +117,41 @@ export const todoInterface = (function () {
     }
 
     function wasListModified(previousLength) {
-        return previousLength !== todoController.getTodos().length;
+        return previousLength !== getTodos().length;
+    }
+
+    function addToMainCategory(categoryId) {
+        const todoId = document.querySelector('.todo-edit').dataset.id;
+        const listTodo = todoController.getTodoById(todoId);
+
+        todoController.addTodoToCategory(listTodo, categoryId);
+    }
+
+    function getTodos() {
+        return todoController.getCurrentCategory().getTodos();
+    }
+
+    function getCurrentCategoryName() {
+        return todoController.getCurrentCategory().getName();
+    }
+
+    function getCurrentCategoryId() {
+        return todoController.getCurrentCategory().getId();
+    }
+
+    function getEditingTodo() {
+        const id = document.querySelector('.todo-edit').dataset.id;
+        return todoController.getTodoById(id);
+    }
+
+    function removeEditingTodo() {
+        todoController.removeTodoFromCategory(getEditingTodo().id);
+    }
+
+    function switchCategory(categoryId) {
+        if(categoryId !== getCurrentCategoryId()) {
+            todoController.switchCategory(categoryId);
+        }
     }
 
     return { 
@@ -131,6 +165,13 @@ export const todoInterface = (function () {
         sortListByDueDate,
         isTodoInCategory,
         moveTodoToCategory,
-        wasListModified
+        wasListModified,
+        addToMainCategory,
+        getTodos,
+        getCurrentCategoryName,
+        getCurrentCategoryId,
+        getEditingTodo,
+        removeEditingTodo,
+        switchCategory
      }
 })()

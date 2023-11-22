@@ -123,8 +123,8 @@ export const todoController = (function() {
         }
     }
 
-    function removeTodoFromCategory(id, categoryId = getCurrentCategoryId()) {
-        if(categoryId === getCurrentCategoryId()) {
+    function removeTodoFromCategory(id, categoryId = currentCategory.getId()) {
+        if(categoryId === currentCategory.getId()) {
             currentCategory.removeTodo(id);
         } else {
             todo.getCategoryById(categoryId).removeTodo(id);
@@ -161,16 +161,8 @@ export const todoController = (function() {
         currentCategory = todo.getCategoryById(id);
     }
 
-    function getCurrentCategoryId() {
-        return currentCategory.getId();
-    }
-
-    function getCurrentCategoryName() {
-        return currentCategory.getName(); //used in title
-    }
-
-    function getTodos() {
-        return currentCategory.getTodos();
+    function getCurrentCategory() {
+        return currentCategory;
     }
 
     function getTodoById(id) {
@@ -199,14 +191,12 @@ export const todoController = (function() {
         removeTodoFromCategory,
         addTodoToCategory,
         switchCategory, 
-        getCurrentCategoryId,
-        getCurrentCategoryName,
-        getTodos, 
+        getCurrentCategory,
         getTodoById,
         addCategory,
         updateTodoDate,
         updateTodoPriority,
-        isTodoInCategory
+        isTodoInCategory,
     }
 })()
 

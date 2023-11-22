@@ -1,5 +1,4 @@
 //import { Todo } from "./todo.js";
-import { todoController } from "./todoList.js";
 import { todoInterface } from "./todoInterface.js";
 import { formatToRelativeDate } from "./utilities.js";
 
@@ -95,7 +94,6 @@ export const displayModule = (function() {
 
         function onClick() {
             if(document.querySelector('.todo-edit').style.visibility === 'hidden') {
-                console.log('hii')
                 showEditMenu();
                 highlightTodo(id);
                 updateEditMenu($listItem);
@@ -146,7 +144,7 @@ export const displayModule = (function() {
         if(!updatingTodos) {
             updatingTodos = true;
             document.querySelector('.todo-list').innerHTML = '';
-            displayTodos(todoController.getTodos());
+            displayTodos(todoInterface.getTodos());
             updatingTodos = false;
         }
     }
@@ -171,7 +169,7 @@ export const displayModule = (function() {
         updateTodos();
         if(document.querySelector('.todo-edit').hasAttribute('data-id')) {
             highlightTodo(document.querySelector('.todo-edit').dataset.id);
-            updateEditMenuFields(document.querySelector('.todo-edit').dataset.id)
+            updateEditMenuFields();
         }
     }
 
@@ -223,7 +221,7 @@ export const displayModule = (function() {
             options.appendChild(placeholderOption)
             const customCategories = [...document.querySelectorAll('.custom-categories-list button')];
             customCategories.forEach(categoryElement => {
-                if(categoryElement.dataset.id !== todoController.getCurrentCategoryId()) {
+                if(categoryElement.dataset.id !== todoInterface.getCurrentCategoryId()) {
                     const title = categoryElement.dataset.category;
                     const categoryOption = document.createElement('option');
                     categoryOption.value = categoryElement.dataset.id;
@@ -251,8 +249,8 @@ export const displayModule = (function() {
         return optionsContainer;
     }
 
-    function updateEditMenuFields(id) {
-        const listTodo = todoController.getTodoById(id);
+    function updateEditMenuFields() {
+        const listTodo = todoInterface.getEditingTodo();
         document.querySelector('.edit-completed').checked = listTodo.completed;
         document.querySelector('.edit-title').value = listTodo.title;
         document.querySelector('.edit-description').value = listTodo.description;
@@ -280,7 +278,7 @@ export const displayModule = (function() {
             function checkboxCallback() {
                 todoInterface.handleCompletedChange($todoEditMenu.dataset.id)
                 updateTodos();
-                updateEditMenuFields($todoEditMenu.dataset.id);
+                updateEditMenuFields();
             }
 
             addCheckboxEvents($editCompleted, checkboxCallback);
@@ -353,7 +351,7 @@ export const displayModule = (function() {
             function categoryAdd(event) {
                 const button = event.target;
                 if(!todoInterface.isTodoInCategory($todoEditMenu.dataset.id, button.dataset.id)) {
-                    addToMainCategory(button.dataset.category);      
+                    todoInterface.addToMainCategory(button.dataset.id);      
                 }
             } 
     
@@ -368,7 +366,7 @@ export const displayModule = (function() {
             const $deleteTodoButton = $todoEditMenu.querySelector('.delete-todo-button');
             
             function callback () { 
-                todoController.removeTodoFromCategory($todoEditMenu.dataset.id);
+                todoInterface.removeEditingTodo();
                 hideAndUnhighlight();
                 updateTodos();
             }
@@ -390,7 +388,7 @@ export const displayModule = (function() {
             }
         }
         
-        updateEditMenuFields($todoEditMenu.dataset.id);
+        updateEditMenuFields();
 
         handleCheckboxEvent();
         handleTitleEvents();
@@ -404,12 +402,12 @@ export const displayModule = (function() {
 
     function updateTitle() {
         const title = document.querySelector('h1');
-        const categoryName = todoController.getCurrentCategoryName();
+        const categoryName = todoInterface.getCurrentCategoryName();
         title.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
     }
 
     function changeCategory(categoryId) {
-        todoController.switchCategory(categoryId); //dont use todoController!
+        todoInterface.switchCategory(categoryId);
         hideEditMenu();
         updatePage();
     }
@@ -444,11 +442,6 @@ export const displayModule = (function() {
         addTextInputEvents($categoryTitle, submitCallback);
     }
 
-    function addToMainCategory(categoryId) {
-        const id = document.querySelector('.todo-edit').dataset.id;
-        todoController.addTodoToCategory(id, categoryId);
-    }
-
     document.querySelector('.todo-edit').style.visibility = 'hidden';
     updatePage();
 
@@ -457,7 +450,6 @@ export const displayModule = (function() {
         displayTodoPlaceholder,
         updateTodos,
         displayCategoryPlaceholder,
-        addToMainCategory,
         hideAndUnhighlight
     }
 })()
