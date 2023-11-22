@@ -76,6 +76,31 @@ aside hr {
     width: 80%;
     justify-self: center;
 }
+
+
+.add-category-button {
+    width: calc(calc(100% / 7) + 2px);
+    background-color: var(--primary-color);
+}
+
+
+.add-todo-button {
+    background-color: var(--accent-color); 
+    width: calc(calc(calc((100% / 7) * 4) - 2px) );
+}
+
+.add-todo-button, .add-category-button{
+    position: fixed;
+    bottom: 0;
+    border: none;
+    height: 45px;
+    justify-content: center;
+}
+
+.add-todo-button > *, .add-category-button > *{
+    color: var(--alternative-text-color)
+}
+
 main {
     grid-column-start: 3;
     max-width: var(--main-width);
