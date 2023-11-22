@@ -87,6 +87,13 @@ export const todoInterface = (function () {
         todoInList.toggleCompleted();
     }
 
+    function handleDescriptionChange(id, newDescription) {
+        const todo = todoController.getTodoById(id);
+        if(todo.description !== newDescription) {
+            todo.description = newDescription;
+        }
+    }
+
     function handleDateChange(id, newDueDate) {
         todoController.updateTodoDate(id, newDueDate, isDateUpcoming(newDueDate));
     }
@@ -118,6 +125,7 @@ export const todoInterface = (function () {
         handleCategorySubmit, 
         editTitle, 
         handleCompletedChange, 
+        handleDescriptionChange,
         handleDateChange, 
         handlePriorityChange,
         sortListByDueDate,

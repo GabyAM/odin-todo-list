@@ -255,6 +255,7 @@ export const displayModule = (function() {
         const listTodo = todoController.getTodoById(id);
         document.querySelector('.edit-completed').checked = listTodo.completed;
         document.querySelector('.edit-title').value = listTodo.title;
+        document.querySelector('.edit-description').value = listTodo.description;
         document.querySelector('.edit-due-date').value = listTodo.dueDate;
         if(listTodo.priority !== '') {
             document.querySelector(`#${listTodo.priority}-priority`).checked = true;
@@ -292,10 +293,20 @@ export const displayModule = (function() {
                 if(todoInterface.editTitle($editTitle, $todoEditMenu.dataset.id)) {
                     updatePage();
                 }
-                updateEditMenuFields($todoEditMenu.dataset.id);
+                //updateEditMenuFields($todoEditMenu.dataset.id);
             }
 
             addTextInputEvents($editTitle, submitCallback);
+        }
+
+        function handleDescriptionEvent() {
+            const $editDescription = $todoEditMenu.querySelector('textarea');
+
+            function submitCallback() {
+                todoInterface.handleDescriptionChange($todoEditMenu.dataset.id, $editDescription.value)
+            }
+
+            addTextInputEvents($editDescription, submitCallback);
         }
 
         function handleDateEvent() {
@@ -383,6 +394,7 @@ export const displayModule = (function() {
 
         handleCheckboxEvent();
         handleTitleEvents();
+        handleDescriptionEvent();
         handleDateEvent();
         handlePriorityEvent();
         handleCategoryButtonsEvents();
