@@ -1,8 +1,8 @@
 import { Todo } from "./todo.js";
 
-function createCategory(name) {
+function createCategory(name, previousId = null) {
     let todos = [];
-    const id = crypto.randomUUID();
+    const id = previousId ? previousId : crypto.randomUUID();
 
     function getName () {
         return name;
@@ -36,15 +36,11 @@ function createCategory(name) {
 }
 
 export const todo = (function() {
-    const allCategory = createCategory('all');
-    const upcomingCategory = createCategory('upcoming');
-    const importantCategory = createCategory('important');
 
-    let todos = [
-        allCategory,
-        upcomingCategory,
-        importantCategory
-    ];
+    let todos = loadState();
+    const allCategory = todos[0];
+    const upcomingCategory = todos[1];
+    const importantCategory = todos[2];
 
     function addTodo(category, todo) {
         category.addTodo(todo);
@@ -108,12 +104,32 @@ export const todo = (function() {
     }
 
     function loadState() {
-        //const storageTodos = localStorage.getItem('todos');
-        //if(storageTodos) return JSON.parse(storageTodos)
+        const storageTodos = localStorage.getItem('todos');
+        if(storageTodos) {
+            const deserializedTodos = JSON.parse(storageTodos).map(category => {
+                const deserializedCategoryTodos = category.todos.map(todo => {
+                    return new Todo(
+                        todo.title, 
+                        todo.description,
+                        todo.completed,
+                        todo.dueDate,
+                        todo.priority,
+                        todo.id,
+                        todo.isDynamic
+                    );
+                })
+                const deserializedCategory = createCategory(category.name, category.id);
+                deserializedCategoryTodos.forEach(todo => {
+                    deserializedCategory.addTodo(todo);
+                })
+                return deserializedCategory;
+            })
+            return deserializedTodos;
+        }
         return [
-            allCategory,
-            upcomingCategory,
-            importantCategory
+            createCategory('all'),
+            createCategory('upcoming'),
+            createCategory('important')
         ]
     }
 
@@ -203,9 +219,6 @@ export const todoController = (function() {
         const category = todo.getCategoryById(categoryId);
         return category.hasTodo(todoId);
     }
-
-    addTodoToCategory(new Todo('todo 1', '', false, '', ''));
-    addTodoToCategory(new Todo('todo 2', '', true, '', ''));
 
     return {
         removeTodoFromCategory,
