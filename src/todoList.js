@@ -20,11 +20,6 @@ function createCategory(name) {
         todos = todos.filter(todo => todo.id !== id);
     }
 
-    function editTodo(id, newTodo) {
-        const todoIndex = todos.findIndex(todo => todo.id === id)
-        todos[todoIndex] = newTodo;
-    }
-
     function getTodos () {
         return [...todos];
     }
@@ -37,7 +32,7 @@ function createCategory(name) {
         return getTodoById(id) !== undefined;
     }
 
-    return {getName, addTodo, removeTodo, editTodo, getTodos, getTodoById, hasTodo, getId}
+    return {getName, addTodo, removeTodo, getTodos, getTodoById, hasTodo, getId}
 }
 
 export const todo = (function() {
@@ -53,16 +48,14 @@ export const todo = (function() {
 
     function addTodo(category, todo) {
         category.addTodo(todo);
+        saveState();
     }
 
-    function removeTodo(category, id) {
-        category.removeTodo(id);
+    function removeTodo(categoryId, todoId) {
+        const category = getCategoryById(categoryId);
+        category.removeTodo(todoId);
+        saveState();
     }   
-
-    function editTodo(category, id, newTodo) {
-
-        category.editTodo(id, newTodo);
-    }
 
     function getCategoryByName(name) {
         return todos.find(category => category.getName() === name)
@@ -87,19 +80,53 @@ export const todo = (function() {
     function addCategory(name) {
         const newCategory = createCategory(name);
         todos.push(newCategory);
+        saveState();
         return newCategory;
+    }
+
+    function saveState() {
+        const serializedTodos = todos.map(category => {
+            const serializedCategoryTodos = category.getTodos().map(todo => {
+                return {
+                    title: todo.title,
+                    id: todo.id,
+                    completed: todo.completed,
+                    description: todo.description,
+                    dueDate: todo.dueDate,
+                    priority: todo.priority,
+                    isDynamic: todo.isDynamic
+                }
+            })
+            return {
+                name: category.getName(),
+                id: category.getId(),
+                todos: serializedCategoryTodos
+            }
+        })
+
+        localStorage.setItem('todos', JSON.stringify(serializedTodos));
+    }
+
+    function loadState() {
+        //const storageTodos = localStorage.getItem('todos');
+        //if(storageTodos) return JSON.parse(storageTodos)
+        return [
+            allCategory,
+            upcomingCategory,
+            importantCategory
+        ]
     }
 
     return { 
         addTodo,
         removeTodo, 
-        editTodo,
         getAllCategory,
         getUpcomingCategory,
         getImportantCategory,
         getCategoryByName, 
         getCategoryById,
-        addCategory
+        addCategory,
+        saveState,
     }
 })()
 
@@ -111,15 +138,10 @@ export const mainCategoriesIDs = {
 
 export const todoController = (function() {
     
-    let currentCategory;
-    switchCategory(todo.getAllCategory().getId());
+    let currentCategory = todo.getAllCategory();
 
     function removeTodoFromCategory(id, categoryId = currentCategory.getId()) {
-        if(categoryId === currentCategory.getId()) {
-            currentCategory.removeTodo(id);
-        } else {
-            todo.getCategoryById(categoryId).removeTodo(id);
-        }
+        todo.removeTodo(categoryId, id); 
     }
 
     function updateTodoDate(id, newDate, isUpcoming) {
@@ -127,11 +149,12 @@ export const todoController = (function() {
         const upcomingCategory = todo.getUpcomingCategory();
         listTodo.dueDate = newDate;
         if(isUpcoming && !upcomingCategory.hasTodo(id)) {
-            upcomingCategory.addTodo(listTodo);
+            todo.addTodo(upcomingCategory, listTodo);
             listTodo.isDynamic = true;
         }
         else if(listTodo.isDynamic && !isUpcoming && upcomingCategory.hasTodo(id)) {
             upcomingCategory.removeTodo(id);
+            todo.saveState();
         }
     }
 
@@ -140,11 +163,12 @@ export const todoController = (function() {
         const importantCategory = todo.getImportantCategory();
         listTodo.priority = newPriority;
         if(newPriority === 'high' && !importantCategory.hasTodo(id)) {
-            importantCategory.addTodo(listTodo);
+            todo.addTodo(importantCategory, listTodo);
             listTodo.isDynamic = true;
         }
         else if(listTodo.isDynamic && newPriority !== 'high' && importantCategory.hasTodo(id)) {
             importantCategory.removeTodo(id);
+            todo.saveState();
         }
     }
 
@@ -167,10 +191,10 @@ export const todoController = (function() {
 
     function addTodoToCategory(newTodo, categoryId = null) {
         const category = categoryId === null ? currentCategory : todo.getCategoryById(categoryId);
-        category.addTodo(newTodo);
+        todo.addTodo(category, newTodo);
         const allCategory = todo.getAllCategory();
         if(category.getId() !== allCategory.getId()) {
-            allCategory.addTodo(newTodo);
+            todo.addTodo(allCategory, newTodo);
             newTodo.isDynamic = true;
         }
     }
@@ -180,8 +204,8 @@ export const todoController = (function() {
         return category.hasTodo(todoId);
     }
 
-    addTodo(new Todo('todo 1', '', false, '', ''));
-    addTodo(new Todo('todo 2', '', true, '', ''));
+    addTodoToCategory(new Todo('todo 1', '', false, '', ''));
+    addTodoToCategory(new Todo('todo 2', '', true, '', ''));
 
     return {
         removeTodoFromCategory,
