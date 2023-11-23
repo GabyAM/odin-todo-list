@@ -547,14 +547,14 @@ function validateTimezone(_hours, minutes) {
 ;// CONCATENATED MODULE: ./src/todo.js
 class Todo {
     #id;
-    constructor(title, description, completed, dueDate, priority ) {
+    constructor(title, description, completed, dueDate, priority, previousId = null, previousIsDynamic = null ) {
         this.title = title;
         this.description = description;
         this.completed = completed;
         this.dueDate = dueDate;
         this.priority = priority;
-        this.#id = crypto.randomUUID();
-        this.isDynamic = false;
+        this.#id = previousId ? previousId : crypto.randomUUID();
+        this.isDynamic = previousIsDynamic ? previousIsDynamic : false;
     }
 
     toggleCompleted() {
@@ -568,9 +568,9 @@ class Todo {
 ;// CONCATENATED MODULE: ./src/todoList.js
 
 
-function createCategory(name) {
+function createCategory(name, previousId = null) {
     let todos = [];
-    const id = crypto.randomUUID();
+    const id = previousId ? previousId : crypto.randomUUID();
 
     function getName () {
         return name;
@@ -588,11 +588,6 @@ function createCategory(name) {
         todos = todos.filter(todo => todo.id !== id);
     }
 
-    function editTodo(id, newTodo) {
-        const todoIndex = todos.findIndex(todo => todo.id === id)
-        todos[todoIndex] = newTodo;
-    }
-
     function getTodos () {
         return [...todos];
     }
@@ -605,32 +600,26 @@ function createCategory(name) {
         return getTodoById(id) !== undefined;
     }
 
-    return {getName, addTodo, removeTodo, editTodo, getTodos, getTodoById, hasTodo, getId}
+    return {getName, addTodo, removeTodo, getTodos, getTodoById, hasTodo, getId}
 }
 
 const todo = (function() {
-    const allCategory = createCategory('all');
-    const upcomingCategory = createCategory('upcoming');
-    const importantCategory = createCategory('important');
 
-    let todos = [
-        allCategory,
-        upcomingCategory,
-        importantCategory
-    ];
+    let todos = loadState();
+    const allCategory = todos[0];
+    const upcomingCategory = todos[1];
+    const importantCategory = todos[2];
 
     function addTodo(category, todo) {
         category.addTodo(todo);
+        saveState();
     }
 
-    function removeTodo(category, id) {
-        category.removeTodo(id);
+    function removeTodo(categoryId, todoId) {
+        const category = getCategoryById(categoryId);
+        category.removeTodo(todoId);
+        saveState();
     }   
-
-    function editTodo(category, id, newTodo) {
-
-        category.editTodo(id, newTodo);
-    }
 
     function getCategoryByName(name) {
         return todos.find(category => category.getName() === name)
@@ -655,19 +644,73 @@ const todo = (function() {
     function addCategory(name) {
         const newCategory = createCategory(name);
         todos.push(newCategory);
+        saveState();
         return newCategory;
+    }
+
+    function saveState() {
+        const serializedTodos = todos.map(category => {
+            const serializedCategoryTodos = category.getTodos().map(todo => {
+                return {
+                    title: todo.title,
+                    id: todo.id,
+                    completed: todo.completed,
+                    description: todo.description,
+                    dueDate: todo.dueDate,
+                    priority: todo.priority,
+                    isDynamic: todo.isDynamic
+                }
+            })
+            return {
+                name: category.getName(),
+                id: category.getId(),
+                todos: serializedCategoryTodos
+            }
+        })
+
+        localStorage.setItem('todos', JSON.stringify(serializedTodos));
+    }
+
+    function loadState() {
+        const storageTodos = localStorage.getItem('todos');
+        if(storageTodos) {
+            const deserializedTodos = JSON.parse(storageTodos).map(category => {
+                const deserializedCategoryTodos = category.todos.map(todo => {
+                    return new Todo(
+                        todo.title, 
+                        todo.description,
+                        todo.completed,
+                        todo.dueDate,
+                        todo.priority,
+                        todo.id,
+                        todo.isDynamic
+                    );
+                })
+                const deserializedCategory = createCategory(category.name, category.id);
+                deserializedCategoryTodos.forEach(todo => {
+                    deserializedCategory.addTodo(todo);
+                })
+                return deserializedCategory;
+            })
+            return deserializedTodos;
+        }
+        return [
+            createCategory('all'),
+            createCategory('upcoming'),
+            createCategory('important')
+        ]
     }
 
     return { 
         addTodo,
         removeTodo, 
-        editTodo,
         getAllCategory,
         getUpcomingCategory,
         getImportantCategory,
         getCategoryByName, 
         getCategoryById,
-        addCategory
+        addCategory,
+        saveState,
     }
 })()
 
@@ -679,24 +722,10 @@ const mainCategoriesIDs = {
 
 const todoController = (function() {
     
-    let currentCategory;
-    switchCategory(todo.getAllCategory().getId());
-
-    function addTodo(newTodo) {
-        todo.addTodo(currentCategory, newTodo);
-        const allCategory = todo.getAllCategory();
-        if(currentCategory.getId() !== allCategory.getId()) {
-            allCategory.addTodo(newTodo);
-            newTodo.isDynamic = true;
-        }
-    }
+    let currentCategory = todo.getAllCategory();
 
     function removeTodoFromCategory(id, categoryId = currentCategory.getId()) {
-        if(categoryId === currentCategory.getId()) {
-            currentCategory.removeTodo(id);
-        } else {
-            todo.getCategoryById(categoryId).removeTodo(id);
-        }
+        todo.removeTodo(categoryId, id); 
     }
 
     function updateTodoDate(id, newDate, isUpcoming) {
@@ -704,11 +733,12 @@ const todoController = (function() {
         const upcomingCategory = todo.getUpcomingCategory();
         listTodo.dueDate = newDate;
         if(isUpcoming && !upcomingCategory.hasTodo(id)) {
-            upcomingCategory.addTodo(listTodo);
+            todo.addTodo(upcomingCategory, listTodo);
             listTodo.isDynamic = true;
         }
         else if(listTodo.isDynamic && !isUpcoming && upcomingCategory.hasTodo(id)) {
             upcomingCategory.removeTodo(id);
+            todo.saveState();
         }
     }
 
@@ -717,11 +747,12 @@ const todoController = (function() {
         const importantCategory = todo.getImportantCategory();
         listTodo.priority = newPriority;
         if(newPriority === 'high' && !importantCategory.hasTodo(id)) {
-            importantCategory.addTodo(listTodo);
+            todo.addTodo(importantCategory, listTodo);
             listTodo.isDynamic = true;
         }
         else if(listTodo.isDynamic && newPriority !== 'high' && importantCategory.hasTodo(id)) {
             importantCategory.removeTodo(id);
+            todo.saveState();
         }
     }
 
@@ -742,18 +773,20 @@ const todoController = (function() {
 
     }
 
-    function addTodoToCategory(listTodo, categoryId = null) {
+    function addTodoToCategory(newTodo, categoryId = null) {
         const category = categoryId === null ? currentCategory : todo.getCategoryById(categoryId);
-        category.addTodo(listTodo);
+        todo.addTodo(category, newTodo);
+        const allCategory = todo.getAllCategory();
+        if(category.getId() !== allCategory.getId()) {
+            todo.addTodo(allCategory, newTodo);
+            newTodo.isDynamic = true;
+        }
     }
 
     function isTodoInCategory(todoId, categoryId) {
         const category = todo.getCategoryById(categoryId);
         return category.hasTodo(todoId);
     }
-
-    addTodo(new Todo('todo 1', '', false, '', ''));
-    addTodo(new Todo('todo 2', '', true, '', ''));
 
     return {
         removeTodoFromCategory,
@@ -4353,8 +4386,6 @@ const displayModule = (function() {
 ;// CONCATENATED MODULE: ./src/index.js
 
 
-
-//import './main.css'
 
 const $addTodoButton = document.querySelector('.add-todo-button');
 $addTodoButton.addEventListener('click', () => {
