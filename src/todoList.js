@@ -114,15 +114,6 @@ export const todoController = (function() {
     let currentCategory;
     switchCategory(todo.getAllCategory().getId());
 
-    function addTodo(newTodo) {
-        todo.addTodo(currentCategory, newTodo);
-        const allCategory = todo.getAllCategory();
-        if(currentCategory.getId() !== allCategory.getId()) {
-            allCategory.addTodo(newTodo);
-            newTodo.isDynamic = true;
-        }
-    }
-
     function removeTodoFromCategory(id, categoryId = currentCategory.getId()) {
         if(categoryId === currentCategory.getId()) {
             currentCategory.removeTodo(id);
@@ -174,9 +165,14 @@ export const todoController = (function() {
 
     }
 
-    function addTodoToCategory(listTodo, categoryId = null) {
+    function addTodoToCategory(newTodo, categoryId = null) {
         const category = categoryId === null ? currentCategory : todo.getCategoryById(categoryId);
-        category.addTodo(listTodo);
+        category.addTodo(newTodo);
+        const allCategory = todo.getAllCategory();
+        if(category.getId() !== allCategory.getId()) {
+            allCategory.addTodo(newTodo);
+            newTodo.isDynamic = true;
+        }
     }
 
     function isTodoInCategory(todoId, categoryId) {
